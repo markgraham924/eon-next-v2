@@ -1,19 +1,20 @@
-"""Constants for the Eon Next integration."""
+"""Constants for the EON Next Fork integration."""
 
-DOMAIN = "eon_next"
+DOMAIN = "eon_next_fork"
 INTEGRATION_VERSION = "1.9.0"  # x-release-please-version
 
 # Authentication
 CONF_EMAIL = "email"
 CONF_PASSWORD = "password"
 CONF_REFRESH_TOKEN = "refresh_token"
+CONF_UPDATE_INTERVAL_MINUTES = "update_interval_minutes"
 
 # Frontend / dashboard
 CONF_SHOW_PANEL = "show_panel"
 CONF_SHOW_CARD = "show_card"
 DEFAULT_SHOW_PANEL = True
 DEFAULT_SHOW_CARD = True
-PANEL_TITLE = "EON Next"
+PANEL_TITLE = "EON Next Fork"
 PANEL_ICON = "mdi:lightning-bolt"
 PANEL_URL = f"/api/{DOMAIN}/panel"
 CARDS_URL = f"/{DOMAIN}/cards"

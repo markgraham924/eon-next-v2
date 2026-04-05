@@ -1,4 +1,4 @@
-"""Data models for the Eon Next integration."""
+"""Data models for the EON Next Fork integration."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 @dataclass(slots=True)
 class EonNextRuntimeData:
-    """Runtime data for an Eon Next config entry."""
+    """Runtime data for an EON Next Fork config entry."""
 
     api: EonNext
     coordinator: EonNextCoordinator

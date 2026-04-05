@@ -119,6 +119,6 @@ class EonPieChart extends LitElement {
   }
 }
 
-if (!customElements.get('eon-pie-chart')) {
-  customElements.define('eon-pie-chart', EonPieChart)
+if (!customElements.get('eon-fork-pie-chart')) {
+  customElements.define('eon-fork-pie-chart', EonPieChart)
 }

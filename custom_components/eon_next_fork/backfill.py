@@ -1,4 +1,4 @@
-"""Historical statistics backfill manager for Eon Next."""
+"""Historical statistics backfill manager for EON Next Fork."""
 
 from __future__ import annotations
 
@@ -98,7 +98,7 @@ class EonNextBackfillManager:
         self._task = self.entry.async_create_background_task(
             self.hass,
             self._async_run(),
-            "eon_next_historical_backfill",
+            "eon_next_fork_historical_backfill",
         )
 
     async def async_stop(self) -> None:

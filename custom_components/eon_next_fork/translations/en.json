@@ -15,14 +15,14 @@
                     "password": "Password"
                 },
                 "description": "Your login is no longer valid. Re-enter your credentials to reconnect.",
-                "title": "Reauthenticate Eon Next"
+                "title": "Reauthenticate EON Next Fork"
             },
             "user": {
                 "data": {
                     "email": "Email address",
                     "password": "Password"
                 },
-                "description": "Login to your Eon Next account.",
+                "description": "Login to your EON Next Fork account.",
                 "title": "Login"
             }
         }
@@ -31,8 +31,8 @@
         "step": {
             "init": {
                 "data": {
-                    "show_panel": "Show EON Next dashboard in sidebar",
-                    "show_card": "Register EON Next summary card for Lovelace dashboards",
+                    "show_panel": "Show EON Next Fork dashboard in sidebar",
+                    "show_card": "Register EON Next Fork summary card for Lovelace dashboards",
                     "backfill_enabled": "Enable historical statistics backfill",
                     "backfill_rebuild_statistics": "Clear and rebuild statistics before backfill (recommended for full history)",
                     "backfill_lookback_days": "History lookback window (days)",
@@ -42,7 +42,7 @@
                     "backfill_delay_seconds": "Delay between backfill requests (seconds)"
                 },
                 "description": "Configure dashboard visibility and backfill settings. Backfill imports historical consumption slowly to avoid API/recorder load.",
-                "title": "EON Next Options"
+                "title": "EON Next Fork Options"
             }
         }
     }

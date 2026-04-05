@@ -18,7 +18,7 @@ class EonNextReadingCard extends LitElement {
 
   static async getConfigElement() {
     await import('./editors/meter-card-editor')
-    return document.createElement('eon-next-meter-card-editor')
+    return document.createElement('eon-next-fork-meter-card-editor')
   }
 
   @property({ attribute: false }) hass!: HomeAssistant
@@ -66,7 +66,7 @@ class EonNextReadingCard extends LitElement {
           ${label} Meter
         </div>
         <div class="card-content">
-          <eon-meter-view .meter=${meter}></eon-meter-view>
+          <eon-fork-meter-view .meter=${meter}></eon-fork-meter-view>
         </div>
       </ha-card>
     `
@@ -81,4 +81,4 @@ class EonNextReadingCard extends LitElement {
   }
 }
 
-customElements.define('eon-next-reading-card', EonNextReadingCard)
+customElements.define('eon-next-fork-reading-card', EonNextReadingCard)

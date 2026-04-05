@@ -34,7 +34,7 @@ This repository keeps agent guidance in:
 Run a basic syntax and typing pass before opening a PR:
 
 ```bash
-python -m compileall custom_components/eon_next
+python -m compileall custom_components/eon_next_fork
 basedpyright -p pyrightconfig.json
 python3 .github/scripts/check_release_metadata.py
 ```
@@ -76,7 +76,7 @@ Releases are managed by `release-please` and derived from Conventional Commits.
 1. Merge Conventional Commit PRs into `main`.
 2. CI updates a draft release PR with:
    - `CHANGELOG.md` updates.
-   - `custom_components/eon_next/manifest.json` version bump.
+   - `custom_components/eon_next_fork/manifest.json` version bump.
 3. Review that draft PR, mark it ready, approve, and merge it when you want to release.
 4. The merge triggers tag creation (`vX.Y.Z`) and GitHub Release publication.
 

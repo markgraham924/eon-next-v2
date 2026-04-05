@@ -161,20 +161,20 @@ class EonConsumptionView extends LitElement {
             : nothing}
         </div>
 
-        <eon-range-picker
+        <eon-fork-range-picker
           .value=${this._selectedDays}
           @range-changed=${this._onRangeChanged}
-        ></eon-range-picker>
+        ></eon-fork-range-picker>
       </div>
 
       ${this._history.length > 0
-        ? html`<eon-bar-chart
+        ? html`<eon-fork-bar-chart
             .labels=${this._chartLabels}
             .datasets=${this._chartDatasets}
             yLabel="kWh"
             y2Label=${this.meter?.unit_rate != null ? '£' : ''}
             ?darkMode=${this.hass?.themes?.darkMode ?? false}
-          ></eon-bar-chart>`
+          ></eon-fork-bar-chart>`
         : this._loading
           ? html`<div class="chart-placeholder">Loading chart…</div>`
           : nothing}
@@ -182,6 +182,6 @@ class EonConsumptionView extends LitElement {
   }
 }
 
-if (!customElements.get('eon-consumption-view')) {
-  customElements.define('eon-consumption-view', EonConsumptionView)
+if (!customElements.get('eon-fork-consumption-view')) {
+  customElements.define('eon-fork-consumption-view', EonConsumptionView)
 }

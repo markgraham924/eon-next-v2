@@ -1,4 +1,4 @@
-"""Unit tests for EON Next service handlers."""
+"""Unit tests for EON Next Fork service handlers."""
 
 from __future__ import annotations
 
@@ -9,8 +9,8 @@ from unittest.mock import AsyncMock
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.eon_next.const import DOMAIN
-from custom_components.eon_next.services import async_register_services
+from custom_components.eon_next_fork.const import DOMAIN
+from custom_components.eon_next_fork.services import async_register_services
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 

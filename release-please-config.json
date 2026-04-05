@@ -10,12 +10,12 @@
       "extra-files": [
         {
           "type": "json",
-          "path": "custom_components/eon_next/manifest.json",
+          "path": "custom_components/eon_next_fork/manifest.json",
           "jsonpath": "$.version"
         },
         {
           "type": "generic",
-          "path": "custom_components/eon_next/const.py"
+          "path": "custom_components/eon_next_fork/const.py"
         }
       ]
     }

@@ -1,4 +1,4 @@
-"""DataUpdateCoordinator for the Eon Next integration."""
+"""DataUpdateCoordinator for the EON Next Fork integration."""
 
 from __future__ import annotations
 
@@ -28,13 +28,13 @@ def ev_data_key(device_id: str) -> str:
 
 
 class EonNextCoordinator(DataUpdateCoordinator):
-    """Coordinator to manage fetching Eon Next data."""
+    """Coordinator to manage fetching EON Next Fork data."""
 
     def __init__(self, hass, api: EonNext, update_interval_minutes: int = 30):
         super().__init__(
             hass,
             _LOGGER,
-            name="Eon Next",
+            name="EON Next Fork",
             update_interval=timedelta(minutes=update_interval_minutes),
         )
         self.api = api
@@ -46,7 +46,7 @@ class EonNextCoordinator(DataUpdateCoordinator):
         self._statistics_import_enabled = enabled
 
     async def _async_update_data(self) -> dict[str, dict[str, Any]]:
-        """Fetch data from the Eon Next API."""
+        """Fetch data from the EON Next Fork API."""
         data: dict[str, dict[str, Any]] = {}
         errors: list[str] = []
         balances = await self._fetch_account_balances()

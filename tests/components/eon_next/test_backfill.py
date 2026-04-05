@@ -8,9 +8,9 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from custom_components.eon_next import backfill as backfill_module
-from custom_components.eon_next.backfill import EonNextBackfillManager
-from custom_components.eon_next.const import (
+from custom_components.eon_next_fork import backfill as backfill_module
+from custom_components.eon_next_fork.backfill import EonNextBackfillManager
+from custom_components.eon_next_fork.const import (
     CONF_BACKFILL_CHUNK_DAYS,
     CONF_BACKFILL_DELAY_SECONDS,
     CONF_BACKFILL_ENABLED,

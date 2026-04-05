@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from custom_components.eon_next.eonnext import EonNext
+from custom_components.eon_next_fork.eonnext import EonNext
 
 # Dynamic reference dates so tests remain valid regardless of when they run.
 _TODAY = datetime.date.today().isoformat()

@@ -15,7 +15,7 @@ If instructions conflict and precedence does not resolve it, ask the user before
 
 - Project type: Home Assistant custom integration (HACS-distributed).
 - Integration domain: `eon_next`.
-- Code location: `custom_components/eon_next/`.
+- Code location: `custom_components/eon_next_fork/`.
 - Frontend location: `frontend/` (Lit + TypeScript, Rollup build).
 - Primary platform: `sensor`.
 - Polling model: `DataUpdateCoordinator` (default 30 minutes).
@@ -30,7 +30,7 @@ If instructions conflict and precedence does not resolve it, ask the user before
 - `frontend/AGENTS.md`: frontend-specific conventions and tooling.
 - `planning/README.md`: index of planning references.
 - `planning/current_state.md`: currently implemented capabilities snapshot.
-- `planning/eon_next_capabilities.md`: API capability map and constraints.
+- `planning/eon_next_fork_capabilities.md`: API capability map and constraints.
 - `planning/feature_ideas.md`: future capability ideas and backlog options.
 
 ## Non-Negotiable Guardrails
@@ -42,7 +42,7 @@ If instructions conflict and precedence does not resolve it, ask the user before
   - REST half-hourly -> REST daily -> GraphQL `consumptionDataByMpxn`.
 - Preserve runtime data pattern (`entry.runtime_data`) for config entries.
 - Keep release metadata in lockstep:
-  - `custom_components/eon_next/manifest.json` `version` must match the latest version header in `CHANGELOG.md`.
+  - `custom_components/eon_next_fork/manifest.json` `version` must match the latest version header in `CHANGELOG.md`.
   - `.release-please-manifest.json` `.` must match `manifest.json` `version` when present.
   - Do not merge changes that leave these versions drifted.
 - For user-visible behavior changes, update both `README.md` and `CHANGELOG.md` in the same change before marking work complete.
@@ -58,7 +58,7 @@ For agents that cannot invoke `/review` directly, follow the review checklist in
 Run before claiming completion on code changes:
 
 ```bash
-python -m compileall custom_components/eon_next
+python -m compileall custom_components/eon_next_fork
 basedpyright -p pyrightconfig.json
 python3 .github/scripts/check_release_metadata.py
 ```

@@ -126,6 +126,6 @@ class EonCostView extends LitElement {
   }
 }
 
-if (!customElements.get('eon-cost-view')) {
-  customElements.define('eon-cost-view', EonCostView)
+if (!customElements.get('eon-fork-cost-view')) {
+  customElements.define('eon-fork-cost-view', EonCostView)
 }

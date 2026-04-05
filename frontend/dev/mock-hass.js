@@ -2,8 +2,8 @@
  * Mock hass object for local development.
  *
  * Intercepts callWS and returns fixture data that mirrors the real
- * eon_next/version, eon_next/dashboard_summary, and
- * eon_next/consumption_history responses.
+ * eon_next_fork/version, eon_next_fork/dashboard_summary, and
+ * eon_next_fork/consumption_history responses.
  */
 
 // ---------------------------------------------------------------------------
@@ -102,11 +102,11 @@ function createMockHass() {
       }
 
       switch (msg.type) {
-        case 'eon_next/version':
+        case 'eon_next_fork/version':
           return FIXTURES.version
-        case 'eon_next/dashboard_summary':
+        case 'eon_next_fork/dashboard_summary':
           return simulateEmpty ? FIXTURES.empty : FIXTURES.summary
-        case 'eon_next/consumption_history': {
+        case 'eon_next_fork/consumption_history': {
           if (simulateEmpty) return { entries: [] }
           const serial = msg.meter_serial
           return FIXTURES.consumptionHistory[serial] || { entries: [] }
@@ -140,18 +140,18 @@ function inject() {
       hass,
       narrow: false,
       route: { prefix: '/eon_next', path: '' },
-      panel: { config: {}, url_path: 'eon_next', title: 'EON Next' }
+      panel: { config: {}, url_path: 'eon_next', title: 'EON Next Fork' }
     })
   }
 
   if (summaryCard) {
-    summaryCard.setConfig({ type: 'custom:eon-next-summary-card' })
+    summaryCard.setConfig({ type: 'custom:eon-next-fork-summary-card' })
     summaryCard.hass = hass
   }
 
   if (consumptionCard) {
     consumptionCard.setConfig({
-      type: 'custom:eon-next-consumption-card',
+      type: 'custom:eon-next-fork-consumption-card',
       meter_type: 'electricity'
     })
     consumptionCard.hass = hass
@@ -159,7 +159,7 @@ function inject() {
 
   if (costCard) {
     costCard.setConfig({
-      type: 'custom:eon-next-cost-card',
+      type: 'custom:eon-next-fork-cost-card',
       meter_type: 'electricity'
     })
     costCard.hass = hass
@@ -167,7 +167,7 @@ function inject() {
 
   if (readingCard) {
     readingCard.setConfig({
-      type: 'custom:eon-next-reading-card',
+      type: 'custom:eon-next-fork-reading-card',
       meter_type: 'electricity'
     })
     readingCard.hass = hass
@@ -176,11 +176,11 @@ function inject() {
 
 // Wait for custom elements to be defined, then inject
 Promise.all([
-  customElements.whenDefined('eon-next-panel'),
-  customElements.whenDefined('eon-next-summary-card'),
-  customElements.whenDefined('eon-next-consumption-card'),
-  customElements.whenDefined('eon-next-cost-card'),
-  customElements.whenDefined('eon-next-reading-card')
+  customElements.whenDefined('eon-next-fork-panel'),
+  customElements.whenDefined('eon-next-fork-summary-card'),
+  customElements.whenDefined('eon-next-fork-consumption-card'),
+  customElements.whenDefined('eon-next-fork-cost-card'),
+  customElements.whenDefined('eon-next-fork-reading-card')
 ]).then(() => inject())
 
 // ---------------------------------------------------------------------------

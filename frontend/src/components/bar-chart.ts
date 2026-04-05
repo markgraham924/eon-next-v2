@@ -199,6 +199,6 @@ class EonBarChart extends LitElement {
   }
 }
 
-if (!customElements.get('eon-bar-chart')) {
-  customElements.define('eon-bar-chart', EonBarChart)
+if (!customElements.get('eon-fork-bar-chart')) {
+  customElements.define('eon-fork-bar-chart', EonBarChart)
 }

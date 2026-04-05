@@ -193,7 +193,7 @@ If per-rate time windows are **not** available in the schema, we can still deriv
 
 ### 2A.1 Previous Rate Sensor
 
-**Entity:** `sensor.eon_next_{serial}__previous_unit_rate`
+**Entity:** `sensor.eon_next_fork_{serial}__previous_unit_rate`
 **Device class:** `MONETARY` (no `state_class` — not a measurement)
 **Unit:** `GBP/kWh`
 
@@ -212,7 +212,7 @@ If per-rate time windows are **not** available in the schema, we can still deriv
 
 ### 2A.2 Next Rate Sensor
 
-**Entity:** `sensor.eon_next_{serial}__next_unit_rate`
+**Entity:** `sensor.eon_next_fork_{serial}__next_unit_rate`
 **Device class:** `MONETARY` (no `state_class`)
 **Unit:** `GBP/kWh`
 
@@ -231,7 +231,7 @@ If per-rate time windows are **not** available in the schema, we can still deriv
 
 ### 2A.3 Off-Peak Binary Sensor
 
-**Entity:** `binary_sensor.eon_next_{serial}__off_peak`
+**Entity:** `binary_sensor.eon_next_fork_{serial}__off_peak`
 **Device class:** None (generic on/off)
 **Icon:** `mdi:clock-fast` (on) / `mdi:clock-outline` (off)
 
@@ -256,7 +256,7 @@ If per-rate time windows are **not** available in the schema, we can still deriv
 
 ### 2A.4 Current Day Rates Event Entity
 
-**Entity:** `event.eon_next_{serial}__current_day_rates`
+**Entity:** `event.eon_next_fork_{serial}__current_day_rates`
 
 **Behavior:**
 - Fires a `rates_updated` event each coordinator refresh with today's rate schedule.
@@ -294,7 +294,7 @@ If per-rate time windows are **not** available in the schema, we can still deriv
 
 ### 2A.5 Export Rate Sensor (Capability-Gated)
 
-**Entity:** `sensor.eon_next_{serial}__export_unit_rate`
+**Entity:** `sensor.eon_next_fork_{serial}__export_unit_rate`
 **Device class:** `MONETARY` (no `state_class`)
 **Unit:** `GBP/kWh`
 
@@ -311,7 +311,7 @@ If per-rate time windows are **not** available in the schema, we can still deriv
 
 ### 2A.6 Export Daily Consumption Sensor (Capability-Gated)
 
-**Entity:** `sensor.eon_next_{serial}__export_daily_consumption`
+**Entity:** `sensor.eon_next_fork_{serial}__export_daily_consumption`
 **Device class:** `ENERGY`
 **State class:** `TOTAL`
 **Unit:** `kWh`
@@ -344,7 +344,7 @@ If per-rate time windows are **not** available in the schema, we can still deriv
 
 **Concept:** Let users attach any HA power/energy sensor (e.g., a smart plug measuring a washing machine) to a cost tracker that automatically costs its consumption against the user's current tariff rate. This is BottlecapDave's most popular "beyond basics" feature.
 
-**Entity:** `sensor.eon_next_{name}__cost_tracker` (user-defined name)
+**Entity:** `sensor.eon_next_fork_{name}__cost_tracker` (user-defined name)
 **Device class:** `MONETARY`
 **State class:** `TOTAL`
 **Unit:** `GBP`
@@ -398,7 +398,7 @@ If per-rate time windows are **not** available in the schema, we can still deriv
 
 ### 2B.2 Account Balance Sensor
 
-**Entity:** `sensor.eon_next_{account_number}__account_balance`
+**Entity:** `sensor.eon_next_fork_{account_number}__account_balance`
 **Device class:** `MONETARY`
 **State class:** `MEASUREMENT`
 
@@ -425,7 +425,7 @@ Wait — `MEASUREMENT` + `MONETARY` is forbidden by HA. Use no `state_class` ins
 
 ### 2B.3 Previous Day Consumption Sensor (Explicit)
 
-**Entity:** `sensor.eon_next_{serial}__previous_day_consumption`
+**Entity:** `sensor.eon_next_fork_{serial}__previous_day_consumption`
 **Device class:** `ENERGY`
 **State class:** `TOTAL`
 **Unit:** `kWh`

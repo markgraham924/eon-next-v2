@@ -17,7 +17,7 @@ class EonNextEvCard extends LitElement {
 
   static async getConfigElement() {
     await import('./editors/ev-card-editor')
-    return document.createElement('eon-next-ev-card-editor')
+    return document.createElement('eon-next-fork-ev-card-editor')
   }
 
   @property({ attribute: false }) hass!: HomeAssistant
@@ -62,10 +62,10 @@ class EonNextEvCard extends LitElement {
           EV Smart Charging
         </div>
         <div class="card-content">
-          <eon-ev-schedule-view
+          <eon-fork-ev-schedule-view
             .hass=${this.hass}
             .deviceId=${ev.device_id ?? ''}
-          ></eon-ev-schedule-view>
+          ></eon-fork-ev-schedule-view>
         </div>
       </ha-card>
     `
@@ -80,6 +80,6 @@ class EonNextEvCard extends LitElement {
   }
 }
 
-if (!customElements.get('eon-next-ev-card')) {
-  customElements.define('eon-next-ev-card', EonNextEvCard)
+if (!customElements.get('eon-next-fork-ev-card')) {
+  customElements.define('eon-next-fork-ev-card', EonNextEvCard)
 }

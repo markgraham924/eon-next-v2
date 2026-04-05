@@ -1,4 +1,4 @@
-"""WebSocket API commands for the EON Next frontend.
+"""WebSocket API commands for the EON Next Fork frontend.
 
 Shared by both the sidebar panel and standalone Lovelace cards.
 """
@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import dataclasses
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any
 
 import voluptuous as vol
@@ -36,14 +36,14 @@ from .statistics import statistic_id_for_meter
 _LOGGER = logging.getLogger(__name__)
 
 WS_CONSUMPTION_HISTORY_SCHEMA = {
-    vol.Required("type"): "eon_next/consumption_history",
+    vol.Required("type"): "eon_next_fork/consumption_history",
     vol.Required("meter_serial"): str,
     vol.Optional("days", default=7): vol.All(int, vol.Range(min=1, max=365)),
 }
 
 
 def async_setup_websocket(hass: HomeAssistant) -> None:
-    """Register all EON Next WebSocket commands."""
+    """Register all EON Next Fork WebSocket commands."""
     websocket_api.async_register_command(hass, ws_version)
     websocket_api.async_register_command(hass, ws_dashboard_summary)
     websocket_api.async_register_command(hass, ws_consumption_history)
@@ -52,7 +52,7 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
 
 
 @websocket_api.websocket_command(  # pyright: ignore[reportPrivateImportUsage]
-    {vol.Required("type"): "eon_next/version"}
+    {vol.Required("type"): "eon_next_fork/version"}
 )
 @callback
 def ws_version(
@@ -68,7 +68,7 @@ def ws_version(
 
 
 @websocket_api.websocket_command(  # pyright: ignore[reportPrivateImportUsage]
-    {vol.Required("type"): "eon_next/dashboard_summary"}
+    {vol.Required("type"): "eon_next_fork/dashboard_summary"}
 )
 @websocket_api.async_response  # pyright: ignore[reportPrivateImportUsage]
 async def ws_dashboard_summary(
@@ -325,8 +325,9 @@ async def _entries_from_rest(
                     continue
                 if value < 0:
                     continue
-                # interval_start is an ISO datetime; extract the date part
-                date_str = str(interval)[:10]
+                date_str = _interval_to_local_date(interval)
+                if date_str is None:
+                    continue
                 entries.append(
                     ConsumptionHistoryEntry(
                         date=date_str,
@@ -348,9 +349,27 @@ async def _entries_from_rest(
     return entries
 
 
+def _interval_to_local_date(interval: Any) -> str | None:
+    """Convert an interval timestamp into the local calendar date string."""
+    parsed: datetime | None
+    if isinstance(interval, datetime):
+        parsed = interval
+    elif isinstance(interval, str):
+        parsed = dt_util.parse_datetime(interval)
+    else:
+        return None
+
+    if parsed is None:
+        return None
+    if parsed.tzinfo is None:
+        parsed = dt_util.as_utc(parsed)
+
+    return dt_util.as_local(parsed).date().isoformat()
+
+
 @websocket_api.websocket_command(  # pyright: ignore[reportPrivateImportUsage]
     {
-        vol.Required("type"): "eon_next/ev_schedule",
+        vol.Required("type"): "eon_next_fork/ev_schedule",
         vol.Required("device_id"): str,
     }
 )
@@ -420,7 +439,7 @@ def ws_ev_schedule(
 
 
 @websocket_api.websocket_command(  # pyright: ignore[reportPrivateImportUsage]
-    {vol.Required("type"): "eon_next/backfill_status"}
+    {vol.Required("type"): "eon_next_fork/backfill_status"}
 )
 @callback
 def ws_backfill_status(

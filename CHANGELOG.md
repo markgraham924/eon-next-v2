@@ -2,23 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
-This project is a fork of [madmachinations/eon-next-v2](https://github.com/madmachinations/eon-next-v2), maintained by [@monsagri](https://github.com/monsagri).
+This project is a fork of [madmachinations/eon-next-fork-v2](https://github.com/madmachinations/eon-next-fork-v2), maintained by [@monsagri](https://github.com/monsagri).
 
-## [1.9.0](https://github.com/monsagri/eon-next-v2/compare/v1.8.2...v1.9.0) (2026-03-02)
+## [1.9.0](https://github.com/monsagri/eon-next-fork-v2/compare/v1.8.2...v1.9.0) (2026-03-02)
 
 
 ### Features
 
-* **frontend:** add cost breakdown pie chart card with day/week/month views ([#50](https://github.com/monsagri/eon-next-v2/issues/50)) ([4e7ef94](https://github.com/monsagri/eon-next-v2/commit/4e7ef940115c5925b2a4edf929959a931a82bdbe))
-* implement A1-A3 phase 2 architectural prerequisites ([#48](https://github.com/monsagri/eon-next-v2/issues/48)) ([6209496](https://github.com/monsagri/eon-next-v2/commit/6209496e349ab99e82746481ecae2b78ce58fd18))
-* implement phase 2A tariff-aware sensors ([#51](https://github.com/monsagri/eon-next-v2/issues/51)) ([499c429](https://github.com/monsagri/eon-next-v2/commit/499c4298b73035f08cca507662e4ad9141a451e1))
-* implement phase 2b cost trackers, services, and dashboard breakdown ([1140db9](https://github.com/monsagri/eon-next-v2/commit/1140db9c84bc9be12225b74625c25826a8a4cc5d))
+* **frontend:** add cost breakdown pie chart card with day/week/month views ([#50](https://github.com/monsagri/eon-next-fork-v2/issues/50)) ([4e7ef94](https://github.com/monsagri/eon-next-fork-v2/commit/4e7ef940115c5925b2a4edf929959a931a82bdbe))
+* implement A1-A3 phase 2 architectural prerequisites ([#48](https://github.com/monsagri/eon-next-fork-v2/issues/48)) ([6209496](https://github.com/monsagri/eon-next-fork-v2/commit/6209496e349ab99e82746481ecae2b78ce58fd18))
+* implement phase 2A tariff-aware sensors ([#51](https://github.com/monsagri/eon-next-fork-v2/issues/51)) ([499c429](https://github.com/monsagri/eon-next-fork-v2/commit/499c4298b73035f08cca507662e4ad9141a451e1))
+* implement phase 2b cost trackers, services, and dashboard breakdown ([1140db9](https://github.com/monsagri/eon-next-fork-v2/commit/1140db9c84bc9be12225b74625c25826a8a4cc5d))
 
 
 ### Bug Fixes
 
-* address automated review findings for phase 2b ([5439105](https://github.com/monsagri/eon-next-v2/commit/54391053445bf93168b0c3dd960847e8d46b8b69))
-* correct entity registry test config_entry argument ([5e6f43d](https://github.com/monsagri/eon-next-v2/commit/5e6f43dd25709a1c2cde844638f3aef2c3c00260))
+* address automated review findings for phase 2b ([5439105](https://github.com/monsagri/eon-next-fork-v2/commit/54391053445bf93168b0c3dd960847e8d46b8b69))
+* correct entity registry test config_entry argument ([5e6f43d](https://github.com/monsagri/eon-next-fork-v2/commit/5e6f43dd25709a1c2cde844638f3aef2c3c00260))
 
 ## [Unreleased]
 
@@ -38,141 +38,141 @@ This project is a fork of [madmachinations/eon-next-v2](https://github.com/madma
 * **frontend:** add visual config editors for all Lovelace cards (meter, summary, EV)
 * **frontend:** improve chart tooltips with styled backgrounds, formatted values, and dark-mode support
 * **frontend:** add ARIA roles and labels across panel, charts, and range picker for accessibility
-* **websocket:** extend `eon_next/consumption_history` max day range from 30 to 365
+* **websocket:** extend `eon_next_fork/consumption_history` max day range from 30 to 365
 
 ### Bug Fixes
 
 * **coordinator:** derive unit rate, standing charge, and previous-day cost from tariff agreement data when the defunct daily-costs endpoint returns nothing
 * **frontend:** remove build-time version stamp that drifted from release-please managed version — the backend version badge is now the single source of truth
 
-## [1.8.2](https://github.com/monsagri/eon-next-v2/compare/v1.8.1...v1.8.2) (2026-02-28)
+## [1.8.2](https://github.com/monsagri/eon-next-fork-v2/compare/v1.8.1...v1.8.2) (2026-02-28)
 
 
 ### Bug Fixes
 
-* **coordinator:** address review feedback for daily consumption aggregation ([102b862](https://github.com/monsagri/eon-next-v2/commit/102b86268bc312f692e13f9c3b0b0bd604320bb2))
-* **coordinator:** fix daily consumption and previous-day cost showing unknown ([bbba961](https://github.com/monsagri/eon-next-v2/commit/bbba961f030ae3cf2a256ea1a3d1c3c9652684b1))
+* **coordinator:** address review feedback for daily consumption aggregation ([102b862](https://github.com/monsagri/eon-next-fork-v2/commit/102b86268bc312f692e13f9c3b0b0bd604320bb2))
+* **coordinator:** fix daily consumption and previous-day cost showing unknown ([bbba961](https://github.com/monsagri/eon-next-fork-v2/commit/bbba961f030ae3cf2a256ea1a3d1c3c9652684b1))
 
-## [1.8.1](https://github.com/monsagri/eon-next-v2/compare/v1.8.0...v1.8.1) (2026-02-28)
+## [1.8.1](https://github.com/monsagri/eon-next-fork-v2/compare/v1.8.0...v1.8.1) (2026-02-28)
 
 
 ### Bug Fixes
 
-* **coordinator:** address PR review feedback for tariff fallback ([d7238c3](https://github.com/monsagri/eon-next-v2/commit/d7238c326e5fb098525dfbdb2731ee975df27437))
-* **coordinator:** derive unit rate, standing charge, and previous-day cost from tariff data ([c5047ef](https://github.com/monsagri/eon-next-v2/commit/c5047efa84f418ba6bbda2a2a9f5ff57896943f6))
+* **coordinator:** address PR review feedback for tariff fallback ([d7238c3](https://github.com/monsagri/eon-next-fork-v2/commit/d7238c326e5fb098525dfbdb2731ee975df27437))
+* **coordinator:** derive unit rate, standing charge, and previous-day cost from tariff data ([c5047ef](https://github.com/monsagri/eon-next-fork-v2/commit/c5047efa84f418ba6bbda2a2a9f5ff57896943f6))
 
-## [1.8.0](https://github.com/monsagri/eon-next-v2/compare/v1.7.1...v1.8.0) (2026-02-28)
+## [1.8.0](https://github.com/monsagri/eon-next-fork-v2/compare/v1.7.1...v1.8.0) (2026-02-28)
 
 
 ### Features
 
-* **frontend:** add time-range picker, MTD cost, card editors, and accessibility (Phase 4) ([#41](https://github.com/monsagri/eon-next-v2/issues/41)) ([506e158](https://github.com/monsagri/eon-next-v2/commit/506e158d06d2ba101ded4c41977e23a5fdd197e8))
+* **frontend:** add time-range picker, MTD cost, card editors, and accessibility (Phase 4) ([#41](https://github.com/monsagri/eon-next-fork-v2/issues/41)) ([506e158](https://github.com/monsagri/eon-next-fork-v2/commit/506e158d06d2ba101ded4c41977e23a5fdd197e8))
 
-## [1.7.1](https://github.com/monsagri/eon-next-v2/compare/v1.7.0...v1.7.1) (2026-02-28)
+## [1.7.1](https://github.com/monsagri/eon-next-fork-v2/compare/v1.7.0...v1.7.1) (2026-02-28)
 
 
 ### Bug Fixes
 
-* **panel:** guard static path registration against duplicate aiohttp routes ([#39](https://github.com/monsagri/eon-next-v2/issues/39)) ([9e51ea2](https://github.com/monsagri/eon-next-v2/commit/9e51ea2ca2c26eb94a1b1eb7b2109c7e04f92c83))
+* **panel:** guard static path registration against duplicate aiohttp routes ([#39](https://github.com/monsagri/eon-next-fork-v2/issues/39)) ([9e51ea2](https://github.com/monsagri/eon-next-fork-v2/commit/9e51ea2ca2c26eb94a1b1eb7b2109c7e04f92c83))
 
-## [1.7.0](https://github.com/monsagri/eon-next-v2/compare/v1.6.0...v1.7.0) (2026-02-28)
+## [1.7.0](https://github.com/monsagri/eon-next-fork-v2/compare/v1.6.0...v1.7.0) (2026-02-28)
 
 
 ### Features
 
-* **frontend:** add EV schedule, backfill diagnostics, and enhanced summary card (Phase 3) ([d0dddd9](https://github.com/monsagri/eon-next-v2/commit/d0dddd9a6c4b2690ef9d9901c0e3cdbca901591d))
-* **frontend:** fill missing chart days and add cost overlay to consumption chart ([#35](https://github.com/monsagri/eon-next-v2/issues/35)) ([ccc8a94](https://github.com/monsagri/eon-next-v2/commit/ccc8a94928a6f93dfa532e486bd9348a415182f5))
+* **frontend:** add EV schedule, backfill diagnostics, and enhanced summary card (Phase 3) ([d0dddd9](https://github.com/monsagri/eon-next-fork-v2/commit/d0dddd9a6c4b2690ef9d9901c0e3cdbca901591d))
+* **frontend:** fill missing chart days and add cost overlay to consumption chart ([#35](https://github.com/monsagri/eon-next-fork-v2/issues/35)) ([ccc8a94](https://github.com/monsagri/eon-next-fork-v2/commit/ccc8a94928a6f93dfa532e486bd9348a415182f5))
 
 
 ### Bug Fixes
 
-* **frontend:** improve diagnostics and version/schedule states ([954dc8a](https://github.com/monsagri/eon-next-v2/commit/954dc8af2476efec2737555318c5b1c6e73fad2e))
-* **websocket:** cover ev/backfill commands and stabilize ordering ([0df57a2](https://github.com/monsagri/eon-next-v2/commit/0df57a27de895b2671cd15329ad398694e90422f))
+* **frontend:** improve diagnostics and version/schedule states ([954dc8a](https://github.com/monsagri/eon-next-fork-v2/commit/954dc8af2476efec2737555318c5b1c6e73fad2e))
+* **websocket:** cover ev/backfill commands and stabilize ordering ([0df57a2](https://github.com/monsagri/eon-next-fork-v2/commit/0df57a27de895b2671cd15329ad398694e90422f))
 
-## [1.6.0](https://github.com/monsagri/eon-next-v2/compare/v1.5.4...v1.6.0) (2026-02-27)
+## [1.6.0](https://github.com/monsagri/eon-next-fork-v2/compare/v1.5.4...v1.6.0) (2026-02-27)
 
 
 ### Features
 
-* **frontend:** add consumption charts and new Lovelace cards ([#31](https://github.com/monsagri/eon-next-v2/issues/31)) ([4d898f0](https://github.com/monsagri/eon-next-v2/commit/4d898f06622804d5e98f442aa442befe5e9ee7bf))
+* **frontend:** add consumption charts and new Lovelace cards ([#31](https://github.com/monsagri/eon-next-fork-v2/issues/31)) ([4d898f0](https://github.com/monsagri/eon-next-fork-v2/commit/4d898f06622804d5e98f442aa442befe5e9ee7bf))
 
 
 ### Bug Fixes
 
-* correct GraphQL query shapes for gas tariffs and remove defunct consumptionDataByMpxn ([#33](https://github.com/monsagri/eon-next-v2/issues/33)) ([4a6fc6a](https://github.com/monsagri/eon-next-v2/commit/4a6fc6affb74f494981f108308c73e3d8e91ac3c))
+* correct GraphQL query shapes for gas tariffs and remove defunct consumptionDataByMpxn ([#33](https://github.com/monsagri/eon-next-fork-v2/issues/33)) ([4a6fc6a](https://github.com/monsagri/eon-next-fork-v2/commit/4a6fc6affb74f494981f108308c73e3d8e91ac3c))
 
-## [1.5.4](https://github.com/monsagri/eon-next-v2/compare/v1.5.3...v1.5.4) (2026-02-27)
-
-
-### Bug Fixes
-
-* enable dashboard panel and cards by default on fresh install ([#29](https://github.com/monsagri/eon-next-v2/issues/29)) ([d9c5a0e](https://github.com/monsagri/eon-next-v2/commit/d9c5a0ee4c4f4e9c32597da28c2571f8bc0ac902))
-* resolve post-fork entities always showing unknown values ([b08301b](https://github.com/monsagri/eon-next-v2/commit/b08301bff001051f94228a11ae64a6892c832e8c))
-* widen cost fallback gate and add test coverage ([7ac4563](https://github.com/monsagri/eon-next-v2/commit/7ac45635cbb9f1ac8aadee4d079190baa53e622d))
-
-## [1.5.3](https://github.com/monsagri/eon-next-v2/compare/v1.5.2...v1.5.3) (2026-02-26)
+## [1.5.4](https://github.com/monsagri/eon-next-fork-v2/compare/v1.5.3...v1.5.4) (2026-02-27)
 
 
 ### Bug Fixes
 
-* drop invalid state_class from CurrentUnitRateSensor ([249e3c3](https://github.com/monsagri/eon-next-v2/commit/249e3c32e38ab26daf4f96ff931565a3c5ecf6ad))
-* revert manual CHANGELOG entry — release-please generates it ([dd1ed3c](https://github.com/monsagri/eon-next-v2/commit/dd1ed3c4285c67c08309045bbaf0a0961492b163))
+* enable dashboard panel and cards by default on fresh install ([#29](https://github.com/monsagri/eon-next-fork-v2/issues/29)) ([d9c5a0e](https://github.com/monsagri/eon-next-fork-v2/commit/d9c5a0ee4c4f4e9c32597da28c2571f8bc0ac902))
+* resolve post-fork entities always showing unknown values ([b08301b](https://github.com/monsagri/eon-next-fork-v2/commit/b08301bff001051f94228a11ae64a6892c832e8c))
+* widen cost fallback gate and add test coverage ([7ac4563](https://github.com/monsagri/eon-next-fork-v2/commit/7ac45635cbb9f1ac8aadee4d079190baa53e622d))
 
-## [1.5.2](https://github.com/monsagri/eon-next-v2/compare/v1.5.1...v1.5.2) (2026-02-26)
-
-
-### Bug Fixes
-
-* add 30-second request timeout to API session ([b6d3a83](https://github.com/monsagri/eon-next-v2/commit/b6d3a83271873dd089c71f7fbaa9c5da55e0211e))
-* revert auth retry and IPv4 fallback that caused connection failures ([b88cc1c](https://github.com/monsagri/eon-next-v2/commit/b88cc1c209e9f7cbe409b4e9989cc8bc88e7e9cc))
-* revert auth retry and IPv4 fallback that caused connection failures ([ff28570](https://github.com/monsagri/eon-next-v2/commit/ff2857016aec8433408a5d8b3f92a5af501e2635))
-
-## [1.5.1](https://github.com/monsagri/eon-next-v2/compare/v1.5.0...v1.5.1) (2026-02-25)
+## [1.5.3](https://github.com/monsagri/eon-next-fork-v2/compare/v1.5.2...v1.5.3) (2026-02-26)
 
 
 ### Bug Fixes
 
-* auth retry behaviour and networking issues ([#22](https://github.com/monsagri/eon-next-v2/issues/22)) ([8d9dd57](https://github.com/monsagri/eon-next-v2/commit/8d9dd57a863574797fb530eb6eb59267e0c3cb6c))
+* drop invalid state_class from CurrentUnitRateSensor ([249e3c3](https://github.com/monsagri/eon-next-fork-v2/commit/249e3c32e38ab26daf4f96ff931565a3c5ecf6ad))
+* revert manual CHANGELOG entry — release-please generates it ([dd1ed3c](https://github.com/monsagri/eon-next-fork-v2/commit/dd1ed3c4285c67c08309045bbaf0a0961492b163))
 
-## [1.5.0](https://github.com/monsagri/eon-next-v2/compare/v1.4.0...v1.5.0) (2026-02-25)
+## [1.5.2](https://github.com/monsagri/eon-next-fork-v2/compare/v1.5.1...v1.5.2) (2026-02-26)
+
+
+### Bug Fixes
+
+* add 30-second request timeout to API session ([b6d3a83](https://github.com/monsagri/eon-next-fork-v2/commit/b6d3a83271873dd089c71f7fbaa9c5da55e0211e))
+* revert auth retry and IPv4 fallback that caused connection failures ([b88cc1c](https://github.com/monsagri/eon-next-fork-v2/commit/b88cc1c209e9f7cbe409b4e9989cc8bc88e7e9cc))
+* revert auth retry and IPv4 fallback that caused connection failures ([ff28570](https://github.com/monsagri/eon-next-fork-v2/commit/ff2857016aec8433408a5d8b3f92a5af501e2635))
+
+## [1.5.1](https://github.com/monsagri/eon-next-fork-v2/compare/v1.5.0...v1.5.1) (2026-02-25)
+
+
+### Bug Fixes
+
+* auth retry behaviour and networking issues ([#22](https://github.com/monsagri/eon-next-fork-v2/issues/22)) ([8d9dd57](https://github.com/monsagri/eon-next-fork-v2/commit/8d9dd57a863574797fb530eb6eb59267e0c3cb6c))
+
+## [1.5.0](https://github.com/monsagri/eon-next-fork-v2/compare/v1.4.0...v1.5.0) (2026-02-25)
 
 
 ### Features
 
-* add sidebar dashboard panel and Lovelace card infrastructure ([#20](https://github.com/monsagri/eon-next-v2/issues/20)) ([84c7994](https://github.com/monsagri/eon-next-v2/commit/84c7994e878ced73356219d843e27910a28536c7))
+* add sidebar dashboard panel and Lovelace card infrastructure ([#20](https://github.com/monsagri/eon-next-fork-v2/issues/20)) ([84c7994](https://github.com/monsagri/eon-next-fork-v2/commit/84c7994e878ced73356219d843e27910a28536c7))
 
 
 ### Bug Fixes
 
-* preserve auth tokens on transient network errors ([#19](https://github.com/monsagri/eon-next-v2/issues/19)) ([97f0f9a](https://github.com/monsagri/eon-next-v2/commit/97f0f9ab96bacc14084f1002c823af3a208c319d))
+* preserve auth tokens on transient network errors ([#19](https://github.com/monsagri/eon-next-fork-v2/issues/19)) ([97f0f9a](https://github.com/monsagri/eon-next-fork-v2/commit/97f0f9ab96bacc14084f1002c823af3a208c319d))
 
-## [1.4.0](https://github.com/monsagri/eon-next-v2/compare/v1.3.1...v1.4.0) (2026-02-25)
+## [1.4.0](https://github.com/monsagri/eon-next-fork-v2/compare/v1.3.1...v1.4.0) (2026-02-25)
 
 
 ### Features
 
-* add current unit rate sensor for Energy Dashboard cost tracking ([#15](https://github.com/monsagri/eon-next-v2/issues/15)) ([3ce81b8](https://github.com/monsagri/eon-next-v2/commit/3ce81b8f461fa69ea6821e6477b8f3dbfb49fcf8))
-* add tariff agreement sensors with current tariff name and metadata ([#18](https://github.com/monsagri/eon-next-v2/issues/18)) ([add16e4](https://github.com/monsagri/eon-next-v2/commit/add16e4fdb4e26e3999f237e1cadbc6ba101c068))
+* add current unit rate sensor for Energy Dashboard cost tracking ([#15](https://github.com/monsagri/eon-next-fork-v2/issues/15)) ([3ce81b8](https://github.com/monsagri/eon-next-fork-v2/commit/3ce81b8f461fa69ea6821e6477b8f3dbfb49fcf8))
+* add tariff agreement sensors with current tariff name and metadata ([#18](https://github.com/monsagri/eon-next-fork-v2/issues/18)) ([add16e4](https://github.com/monsagri/eon-next-fork-v2/commit/add16e4fdb4e26e3999f237e1cadbc6ba101c068))
 
-## [1.3.1](https://github.com/monsagri/eon-next-v2/compare/v1.3.0...v1.3.1) (2026-02-25)
+## [1.3.1](https://github.com/monsagri/eon-next-fork-v2/compare/v1.3.0...v1.3.1) (2026-02-25)
 
 
 ### Bug Fixes
 
-* use state class `total` for monetary sensors ([8cadab5](https://github.com/monsagri/eon-next-v2/commit/8cadab5f3a0861aeb781797480b0efaf0b573562))
+* use state class `total` for monetary sensors ([8cadab5](https://github.com/monsagri/eon-next-fork-v2/commit/8cadab5f3a0861aeb781797480b0efaf0b573562))
 
-## [1.3.0](https://github.com/monsagri/eon-next-v2/compare/v1.2.0...v1.3.0) (2026-02-25)
+## [1.3.0](https://github.com/monsagri/eon-next-fork-v2/compare/v1.2.0...v1.3.0) (2026-02-25)
 
 
 ### Features
 
-* add cost tracking ([#9](https://github.com/monsagri/eon-next-v2/issues/9)) ([a6b7c2e](https://github.com/monsagri/eon-next-v2/commit/a6b7c2e8b7b2aa45a2736c04b1203dcfc524f370))
-* add history backfill with diagnostic sensor ([94c498a](https://github.com/monsagri/eon-next-v2/commit/94c498ae9052af804c5eab5949a125e26ae798b1))
+* add cost tracking ([#9](https://github.com/monsagri/eon-next-fork-v2/issues/9)) ([a6b7c2e](https://github.com/monsagri/eon-next-fork-v2/commit/a6b7c2e8b7b2aa45a2736c04b1203dcfc524f370))
+* add history backfill with diagnostic sensor ([94c498a](https://github.com/monsagri/eon-next-fork-v2/commit/94c498ae9052af804c5eab5949a125e26ae798b1))
 
 
 ### Bug Fixes
 
-* harden integration tests and add missing type annotations ([#12](https://github.com/monsagri/eon-next-v2/issues/12)) ([3a9ea7b](https://github.com/monsagri/eon-next-v2/commit/3a9ea7bd40880ca8963ea13f2d5a0ae3be16edd5))
+* harden integration tests and add missing type annotations ([#12](https://github.com/monsagri/eon-next-fork-v2/issues/12)) ([3a9ea7b](https://github.com/monsagri/eon-next-fork-v2/commit/3a9ea7bd40880ca8963ea13f2d5a0ae3be16edd5))
 
 ## [1.2.0] - 2026-02-24
 

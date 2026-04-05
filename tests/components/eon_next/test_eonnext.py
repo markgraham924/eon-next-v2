@@ -1,4 +1,4 @@
-"""Unit tests for Eon Next API client."""
+"""Unit tests for EON Next Fork API client."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from custom_components.eon_next.eonnext import EonNext, EonNextApiError
+from custom_components.eon_next_fork.eonnext import EonNext, EonNextApiError
 
 
 @pytest.mark.asyncio

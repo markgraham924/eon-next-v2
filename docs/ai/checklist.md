@@ -11,7 +11,7 @@ Use this before opening or finalizing a PR.
 
 ## Validation
 
-- [ ] `python -m compileall custom_components/eon_next` passes.
+- [ ] `python -m compileall custom_components/eon_next_fork` passes.
 - [ ] `basedpyright -p pyrightconfig.json` passes.
 - [ ] Commit/PR title follows Conventional Commit format.
 - [ ] Relevant manual HA flow checks were run for behavior changes.

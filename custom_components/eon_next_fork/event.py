@@ -1,4 +1,4 @@
-"""Event platform for the Eon Next integration."""
+"""Event platform for the EON Next Fork integration."""
 
 from __future__ import annotations
 
@@ -6,9 +6,11 @@ from typing import Any
 
 from homeassistant.components.event import EventEntity
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from .device import get_entry_device_info, meter_label
 from .models import EonNextConfigEntry
 from .tariff_helpers import build_day_rates
 
@@ -21,21 +23,31 @@ async def async_setup_entry(
     """Set up event entities from a config entry."""
     coordinator = config_entry.runtime_data.coordinator
     api = config_entry.runtime_data.api
+    device_info = get_entry_device_info(config_entry)
 
     entities: list[EventEntity] = []
     for account in api.accounts:
         for meter in account.meters:
-            entities.append(CurrentDayRatesEvent(coordinator, meter))
+            entities.append(CurrentDayRatesEvent(coordinator, meter, device_info))
 
     async_add_entities(entities)
 
 
 class EonNextEventBase(CoordinatorEntity, EventEntity):
-    """Base class for Eon Next event entities."""
+    """Base class for EON Next Fork event entities."""
 
-    def __init__(self, coordinator, data_key: str):
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator,
+        data_key: str,
+        device_info: DeviceInfo | None = None,
+    ):
         super().__init__(coordinator)
         self._data_key = data_key
+        if device_info is not None:
+            self._attr_device_info = device_info
 
     @property
     def _meter_data(self) -> dict[str, Any] | None:
@@ -57,9 +69,9 @@ class CurrentDayRatesEvent(EonNextEventBase):
 
     _attr_event_types = ["rates_updated"]
 
-    def __init__(self, coordinator, meter):
-        super().__init__(coordinator, meter.serial)
-        self._attr_name = f"{meter.serial} Current Day Rates"
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Current Day Rates"
         self._attr_unique_id = f"{meter.serial}__current_day_rates"
         self._rates: list[dict[str, Any]] = []
         self._tariff_code: str | None = None

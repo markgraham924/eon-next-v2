@@ -1,10 +1,10 @@
-"""Unit tests for Eon Next statistics helpers."""
+"""Unit tests for EON Next Fork statistics helpers."""
 
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-from custom_components.eon_next.statistics import (
+from custom_components.eon_next_fork.statistics import (
     _group_consumption_by_hour,
     statistic_id_for_meter,
 )
@@ -20,9 +20,9 @@ def test_statistic_id_for_meter_supported_types() -> None:
     """Supported meter types map to stable statistic IDs."""
     assert (
         statistic_id_for_meter("ABC-123", "electricity")
-        == "eon_next:electricity_abc_123_consumption"
+        == "eon_next_fork:electricity_abc_123_consumption"
     )
-    assert statistic_id_for_meter("GAS.01", "gas") == "eon_next:gas_gas_01_consumption"
+    assert statistic_id_for_meter("GAS.01", "gas") == "eon_next_fork:gas_gas_01_consumption"
 
 
 def test_statistic_id_for_meter_unknown_type() -> None:

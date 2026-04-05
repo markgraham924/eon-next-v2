@@ -1,11 +1,11 @@
-# EON Next Integration: Available Features
+# EON Next Fork Integration: Available Features
 
 Date: 2026-03-01
-Scope: Implemented capabilities in this repository (`eon-next-v2`)
+Scope: Implemented capabilities in this repository (`eon-next-fork-v2`)
 
 ## Summary
 
-The integration currently provides cloud-polled monitoring for EON Next accounts through Home Assistant `sensor`, `binary_sensor`, and `event` entities.
+The integration currently provides cloud-polled monitoring for EON Next Fork accounts through Home Assistant `sensor`, `binary_sensor`, and `event` entities.
 
 - Platform support: `sensor`, `binary_sensor`, `event`
 - Frontend: sidebar panel + Lovelace card(s)
@@ -89,9 +89,9 @@ Gas meters add:
 ## Implemented Frontend Features
 
 - Sidebar panel (`panel_custom`) auto-registered on entry setup (toggleable via options flow, default: enabled)
-- WebSocket API commands: `eon_next/version`, `eon_next/dashboard_summary`, `eon_next/consumption_history`
-- `eon_next/consumption_history` returns daily consumption from HA recorder statistics for a given meter serial and day range (1–365)
-- Lovelace cards: `eon-next-summary-card`, `eon-next-consumption-card`, `eon-next-consumption-breakdown-card`, `eon-next-cost-card`, `eon-next-reading-card`, `eon-next-ev-card`
+- WebSocket API commands: `eon_next_fork/version`, `eon_next_fork/dashboard_summary`, `eon_next_fork/consumption_history`
+- `eon_next_fork/consumption_history` returns daily consumption from HA recorder statistics for a given meter serial and day range (1–365)
+- Lovelace cards: `eon-next-fork-summary-card`, `eon-next-fork-consumption-card`, `eon-next-fork-consumption-breakdown-card`, `eon-next-fork-cost-card`, `eon-next-fork-reading-card`, `eon-next-fork-ev-card`
 - Cost breakdown card shows a doughnut pie chart of usage charges vs standing charges with day/week/month period switching
 - Cost breakdown card also shows a tracker-powered tracked-vs-untracked usage split for today, with per-tracker list
 - All Lovelace cards include visual config editors (accessible from the card picker UI)

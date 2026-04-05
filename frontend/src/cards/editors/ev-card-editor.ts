@@ -58,6 +58,6 @@ class EonEvCardEditor extends LitElement {
   }
 }
 
-if (!customElements.get('eon-next-ev-card-editor')) {
-  customElements.define('eon-next-ev-card-editor', EonEvCardEditor)
+if (!customElements.get('eon-next-fork-ev-card-editor')) {
+  customElements.define('eon-next-fork-ev-card-editor', EonEvCardEditor)
 }

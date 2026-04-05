@@ -318,19 +318,19 @@ class EonConsumptionBreakdownView extends LitElement {
             : nothing}
         </div>
 
-        <eon-range-picker
+        <eon-fork-range-picker
           .value=${this._periodValue()}
           .options=${PERIOD_OPTIONS}
           @range-changed=${this._onPeriodChanged}
-        ></eon-range-picker>
+        ></eon-fork-range-picker>
       </div>
 
       ${this._memoSegments.length > 0
         ? html`
-            <eon-pie-chart
+            <eon-fork-pie-chart
               .segments=${this._memoSegments}
               ?darkMode=${darkMode}
-            ></eon-pie-chart>
+            ></eon-fork-pie-chart>
 
             <div class="legend">
               <div class="legend-item">
@@ -352,10 +352,10 @@ class EonConsumptionBreakdownView extends LitElement {
                     <div class="tracker-title">
                       Today usage split (from cost trackers)
                     </div>
-                    <eon-pie-chart
+                    <eon-fork-pie-chart
                       .segments=${this._memoTrackerSegments}
                       ?darkMode=${darkMode}
-                    ></eon-pie-chart>
+                    ></eon-fork-pie-chart>
                     <div class="legend">
                       <div class="legend-item">
                         <span
@@ -399,6 +399,6 @@ class EonConsumptionBreakdownView extends LitElement {
   }
 }
 
-if (!customElements.get('eon-consumption-breakdown-view')) {
-  customElements.define('eon-consumption-breakdown-view', EonConsumptionBreakdownView)
+if (!customElements.get('eon-fork-consumption-breakdown-view')) {
+  customElements.define('eon-fork-consumption-breakdown-view', EonConsumptionBreakdownView)
 }

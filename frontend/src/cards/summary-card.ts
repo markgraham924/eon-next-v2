@@ -21,7 +21,7 @@ class EonNextSummaryCard extends LitElement {
 
   static async getConfigElement() {
     await import('./editors/summary-card-editor')
-    return document.createElement('eon-next-summary-card-editor')
+    return document.createElement('eon-next-fork-summary-card-editor')
   }
 
   @property({ attribute: false }) hass!: HomeAssistant
@@ -110,7 +110,7 @@ class EonNextSummaryCard extends LitElement {
       <ha-card>
         <div class="title">
           <ha-icon icon="mdi:lightning-bolt" style="--mdc-icon-size: 18px;"></ha-icon>
-          EON Next Summary
+          EON Next Fork Summary
         </div>
 
         ${electricity.map((m) =>
@@ -195,14 +195,14 @@ class EonNextSummaryCard extends LitElement {
             </div>`
           : nothing}
         ${sparklineData && sparklineData.length >= 2
-          ? html`<eon-sparkline-chart
+          ? html`<eon-fork-sparkline-chart
               .values=${sparklineData}
               .color=${sparklineColor}
-            ></eon-sparkline-chart>`
+            ></eon-fork-sparkline-chart>`
           : nothing}
       </div>
     `
   }
 }
 
-customElements.define('eon-next-summary-card', EonNextSummaryCard)
+customElements.define('eon-next-fork-summary-card', EonNextSummaryCard)

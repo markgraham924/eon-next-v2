@@ -1,4 +1,4 @@
-"""Config flow to configure Eon Next."""
+"""Config flow to configure EON Next Fork."""
 
 from __future__ import annotations
 
@@ -26,6 +26,7 @@ from .const import (
     CONF_REFRESH_TOKEN,
     CONF_SHOW_CARD,
     CONF_SHOW_PANEL,
+    CONF_UPDATE_INTERVAL_MINUTES,
     DEFAULT_BACKFILL_CHUNK_DAYS,
     DEFAULT_BACKFILL_DELAY_SECONDS,
     DEFAULT_BACKFILL_ENABLED,
@@ -35,6 +36,7 @@ from .const import (
     DEFAULT_BACKFILL_RUN_INTERVAL_MINUTES,
     DEFAULT_SHOW_CARD,
     DEFAULT_SHOW_PANEL,
+    DEFAULT_UPDATE_INTERVAL_MINUTES,
     DOMAIN,
 )
 from .eonnext import EonNext, EonNextApiError
@@ -43,7 +45,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class EonNextConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle Eon Next config flow."""
+    """Handle EON Next Fork config flow."""
 
     VERSION = 1
 
@@ -100,7 +102,7 @@ class EonNextConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 if refresh_token is not None:
                     return self.async_create_entry(
-                        title="Eon Next",
+                        title="EON Next Fork",
                         data={
                             CONF_EMAIL: email,
                             CONF_PASSWORD: password,
@@ -144,6 +146,8 @@ class EonNextConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             email = user_input[CONF_EMAIL].strip().lower()
             password = user_input[CONF_PASSWORD]
+            await self.async_set_unique_id(email)
+            self._abort_if_unique_id_mismatch()
 
             try:
                 refresh_token = await self._validate_credentials(email, password)
@@ -177,13 +181,13 @@ class EonNextConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class EonNextOptionsFlow(config_entries.OptionsFlow):
-    """Handle Eon Next options."""
+    """Handle EON Next Fork options."""
 
     def __init__(self, config_entry: ConfigEntry) -> None:
         self._config_entry = config_entry
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None):
-        """Manage Eon Next options."""
+        """Manage EON Next Fork options."""
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
@@ -204,6 +208,13 @@ class EonNextOptionsFlow(config_entries.OptionsFlow):
                             CONF_SHOW_CARD, DEFAULT_SHOW_CARD
                         ),
                     ): bool,
+                    vol.Required(
+                        CONF_UPDATE_INTERVAL_MINUTES,
+                        default=options.get(
+                            CONF_UPDATE_INTERVAL_MINUTES,
+                            DEFAULT_UPDATE_INTERVAL_MINUTES,
+                        ),
+                    ): vol.All(vol.Coerce(int), vol.Range(min=5, max=360)),
                     vol.Required(
                         CONF_BACKFILL_ENABLED,
                         default=options.get(

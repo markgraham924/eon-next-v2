@@ -77,6 +77,6 @@ class EonMeterCardEditor extends LitElement {
   }
 }
 
-if (!customElements.get('eon-next-meter-card-editor')) {
-  customElements.define('eon-next-meter-card-editor', EonMeterCardEditor)
+if (!customElements.get('eon-next-fork-meter-card-editor')) {
+  customElements.define('eon-next-fork-meter-card-editor', EonMeterCardEditor)
 }

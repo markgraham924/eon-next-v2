@@ -7,8 +7,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from custom_components.eon_next.cost_tracker import EonNextCostTrackerManager
-from custom_components.eon_next.sensor import (
+from custom_components.eon_next_fork.cost_tracker import EonNextCostTrackerManager
+from custom_components.eon_next_fork.sensor import (
     AccountBalanceSensor,
     PreviousDayConsumptionSensor,
 )

@@ -39,7 +39,7 @@ reset_cost_tracker:
   description: Reset one or more cost trackers to zero.
   target:
     entity:
-      integration: eon_next
+      integration: eon_next_fork
       domain: sensor
 
 update_cost_tracker:
@@ -47,7 +47,7 @@ update_cost_tracker:
   description: Enable or disable one or more cost trackers.
   target:
     entity:
-      integration: eon_next
+      integration: eon_next_fork
       domain: sensor
   fields:
     enabled:

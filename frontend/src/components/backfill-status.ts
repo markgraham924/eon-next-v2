@@ -116,6 +116,6 @@ class EonBackfillStatus extends LitElement {
   }
 }
 
-if (!customElements.get('eon-backfill-status')) {
-  customElements.define('eon-backfill-status', EonBackfillStatus)
+if (!customElements.get('eon-fork-backfill-status')) {
+  customElements.define('eon-fork-backfill-status', EonBackfillStatus)
 }

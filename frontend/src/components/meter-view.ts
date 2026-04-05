@@ -36,6 +36,6 @@ class EonMeterView extends LitElement {
   }
 }
 
-if (!customElements.get('eon-meter-view')) {
-  customElements.define('eon-meter-view', EonMeterView)
+if (!customElements.get('eon-fork-meter-view')) {
+  customElements.define('eon-fork-meter-view', EonMeterView)
 }

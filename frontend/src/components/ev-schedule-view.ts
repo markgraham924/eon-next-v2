@@ -117,6 +117,6 @@ class EonEvScheduleView extends LitElement {
   }
 }
 
-if (!customElements.get('eon-ev-schedule-view')) {
-  customElements.define('eon-ev-schedule-view', EonEvScheduleView)
+if (!customElements.get('eon-fork-ev-schedule-view')) {
+  customElements.define('eon-fork-ev-schedule-view', EonEvScheduleView)
 }

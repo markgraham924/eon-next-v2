@@ -1,4 +1,4 @@
-"""Service handlers for the Eon Next integration."""
+"""Service handlers for the EON Next Fork integration."""
 
 from __future__ import annotations
 

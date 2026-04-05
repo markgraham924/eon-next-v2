@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sensor platform for the Eon Next integration."""
+"""Sensor platform for the EON Next Fork integration."""
 
 from __future__ import annotations
 
@@ -15,11 +15,13 @@ from homeassistant.const import EntityCategory, UnitOfEnergy, UnitOfVolume
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
 from .coordinator import ev_data_key
 from .cost_tracker import EonNextCostTrackerManager
+from .device import account_label, charger_label, get_entry_device_info, meter_label
 from .eonnext import METER_TYPE_ELECTRIC, METER_TYPE_GAS, ElectricityMeter
 from .models import EonNextConfigEntry
 from .tariff_helpers import RateInfo, get_next_rate, get_previous_rate
@@ -43,48 +45,63 @@ async def async_setup_entry(
     api = config_entry.runtime_data.api
     backfill = config_entry.runtime_data.backfill
     cost_trackers = config_entry.runtime_data.cost_trackers
+    device_info = get_entry_device_info(config_entry)
 
     entities: list[SensorEntity] = []
     for account in api.accounts:
         account_number = getattr(account, "account_number", None)
         if account_number:
-            entities.append(AccountBalanceSensor(coordinator, account_number))
+            entities.append(
+                AccountBalanceSensor(coordinator, account_number, device_info)
+            )
 
         for meter in account.meters:
-            entities.append(LatestReadingDateSensor(coordinator, meter))
+            entities.append(LatestReadingDateSensor(coordinator, meter, device_info))
 
             if meter.type == METER_TYPE_ELECTRIC:
-                entities.append(LatestElectricKwhSensor(coordinator, meter))
+                entities.append(
+                    LatestElectricKwhSensor(coordinator, meter, device_info)
+                )
 
             if meter.type == METER_TYPE_GAS:
-                entities.append(LatestGasCubicMetersSensor(coordinator, meter))
-                entities.append(LatestGasKwhSensor(coordinator, meter))
+                entities.append(
+                    LatestGasCubicMetersSensor(coordinator, meter, device_info)
+                )
+                entities.append(LatestGasKwhSensor(coordinator, meter, device_info))
 
-            entities.append(DailyConsumptionSensor(coordinator, meter))
-            entities.append(StandingChargeSensor(coordinator, meter))
-            entities.append(PreviousDayCostSensor(coordinator, meter))
-            entities.append(CurrentUnitRateSensor(coordinator, meter))
-            entities.append(CurrentTariffSensor(coordinator, meter))
-            entities.append(PreviousUnitRateSensor(coordinator, meter))
-            entities.append(NextUnitRateSensor(coordinator, meter))
-            entities.append(PreviousDayConsumptionSensor(coordinator, meter))
+            entities.append(DailyConsumptionSensor(coordinator, meter, device_info))
+            entities.append(StandingChargeSensor(coordinator, meter, device_info))
+            entities.append(PreviousDayCostSensor(coordinator, meter, device_info))
+            entities.append(CurrentUnitRateSensor(coordinator, meter, device_info))
+            entities.append(CurrentTariffSensor(coordinator, meter, device_info))
+            entities.append(PreviousUnitRateSensor(coordinator, meter, device_info))
+            entities.append(NextUnitRateSensor(coordinator, meter, device_info))
+            entities.append(
+                PreviousDayConsumptionSensor(coordinator, meter, device_info)
+            )
 
             if isinstance(meter, ElectricityMeter) and meter.is_export:
-                entities.append(ExportUnitRateSensor(coordinator, meter))
-                entities.append(ExportDailyConsumptionSensor(coordinator, meter))
+                entities.append(ExportUnitRateSensor(coordinator, meter, device_info))
+                entities.append(
+                    ExportDailyConsumptionSensor(coordinator, meter, device_info)
+                )
 
         for charger in account.ev_chargers:
-            entities.append(SmartChargingScheduleSensor(coordinator, charger))
-            entities.append(NextChargeStartSensor(coordinator, charger))
-            entities.append(NextChargeEndSensor(coordinator, charger))
-            entities.append(NextChargeStartSlot2Sensor(coordinator, charger))
-            entities.append(NextChargeEndSlot2Sensor(coordinator, charger))
+            entities.append(
+                SmartChargingScheduleSensor(coordinator, charger, device_info)
+            )
+            entities.append(NextChargeStartSensor(coordinator, charger, device_info))
+            entities.append(NextChargeEndSensor(coordinator, charger, device_info))
+            entities.append(
+                NextChargeStartSlot2Sensor(coordinator, charger, device_info)
+            )
+            entities.append(NextChargeEndSlot2Sensor(coordinator, charger, device_info))
 
-    entities.append(HistoricalBackfillStatusSensor(coordinator, backfill))
+    entities.append(HistoricalBackfillStatusSensor(coordinator, backfill, device_info))
 
     tracker_entity_ids = cost_trackers.list_tracker_ids()
     for tracker_id in tracker_entity_ids:
-        entities.append(CostTrackerSensor(cost_trackers, tracker_id))
+        entities.append(CostTrackerSensor(cost_trackers, tracker_id, device_info))
 
     async_add_entities(entities)
 
@@ -95,7 +112,7 @@ async def async_setup_entry(
         if tracker_id in known_tracker_ids:
             return
         known_tracker_ids.add(tracker_id)
-        async_add_entities([CostTrackerSensor(cost_trackers, tracker_id)])
+        async_add_entities([CostTrackerSensor(cost_trackers, tracker_id, device_info)])
 
     config_entry.async_on_unload(
         cost_trackers.async_add_list_listener(_handle_tracker_added)
@@ -103,11 +120,20 @@ async def async_setup_entry(
 
 
 class EonNextSensorBase(CoordinatorEntity, SensorEntity):
-    """Base class for Eon Next sensors."""
+    """Base class for EON Next Fork sensors."""
 
-    def __init__(self, coordinator, data_key: str):
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator,
+        data_key: str,
+        device_info: DeviceInfo | None = None,
+    ):
         super().__init__(coordinator)
         self._data_key = data_key
+        if device_info is not None:
+            self._attr_device_info = device_info
 
     @property
     def _meter_data(self) -> dict[str, Any] | None:
@@ -123,13 +149,21 @@ class EonNextSensorBase(CoordinatorEntity, SensorEntity):
 class HistoricalBackfillStatusSensor(CoordinatorEntity, SensorEntity):
     """Diagnostic sensor exposing historical backfill status."""
 
-    def __init__(self, coordinator, backfill_manager):
+    def __init__(
+        self,
+        coordinator,
+        backfill_manager,
+        device_info: DeviceInfo | None = None,
+    ):
         super().__init__(coordinator)
         self._backfill = backfill_manager
         self._attr_name = "Historical Backfill Status"
         self._attr_icon = "mdi:database-clock-outline"
         self._attr_entity_category = EntityCategory.DIAGNOSTIC
-        self._attr_unique_id = "eon_next__historical_backfill_status"
+        self._attr_unique_id = "eon_next_fork__historical_backfill_status"
+        self._attr_has_entity_name = True
+        if device_info is not None:
+            self._attr_device_info = device_info
 
     async def async_added_to_hass(self) -> None:
         """Register status listener when entity is added."""
@@ -167,9 +201,9 @@ class HistoricalBackfillStatusSensor(CoordinatorEntity, SensorEntity):
 class LatestReadingDateSensor(EonNextSensorBase):
     """Date of latest meter reading."""
 
-    def __init__(self, coordinator, meter):
-        super().__init__(coordinator, meter.serial)
-        self._attr_name = f"{meter.serial} Reading Date"
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Reading Date"
         self._attr_device_class = SensorDeviceClass.DATE
         self._attr_icon = "mdi:calendar"
         self._attr_unique_id = f"{meter.serial}__reading_date"
@@ -183,9 +217,9 @@ class LatestReadingDateSensor(EonNextSensorBase):
 class LatestElectricKwhSensor(EonNextSensorBase):
     """Latest electricity meter reading."""
 
-    def __init__(self, coordinator, meter):
-        super().__init__(coordinator, meter.serial)
-        self._attr_name = f"{meter.serial} Electricity"
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Reading"
         self._attr_device_class = SensorDeviceClass.ENERGY
         self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
         self._attr_state_class = SensorStateClass.TOTAL
@@ -201,9 +235,9 @@ class LatestElectricKwhSensor(EonNextSensorBase):
 class LatestGasKwhSensor(EonNextSensorBase):
     """Latest gas meter reading in kWh."""
 
-    def __init__(self, coordinator, meter):
-        super().__init__(coordinator, meter.serial)
-        self._attr_name = f"{meter.serial} Gas kWh"
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Reading kWh"
         self._attr_device_class = SensorDeviceClass.ENERGY
         self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
         self._attr_state_class = SensorStateClass.TOTAL
@@ -219,9 +253,9 @@ class LatestGasKwhSensor(EonNextSensorBase):
 class LatestGasCubicMetersSensor(EonNextSensorBase):
     """Latest gas meter reading in cubic meters."""
 
-    def __init__(self, coordinator, meter):
-        super().__init__(coordinator, meter.serial)
-        self._attr_name = f"{meter.serial} Gas"
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Reading"
         self._attr_device_class = SensorDeviceClass.GAS
         self._attr_native_unit_of_measurement = UnitOfVolume.CUBIC_METERS
         self._attr_state_class = SensorStateClass.TOTAL
@@ -237,9 +271,9 @@ class LatestGasCubicMetersSensor(EonNextSensorBase):
 class DailyConsumptionSensor(EonNextSensorBase):
     """Daily energy consumption from smart meter data."""
 
-    def __init__(self, coordinator, meter):
-        super().__init__(coordinator, meter.serial)
-        self._attr_name = f"{meter.serial} Daily Consumption"
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Daily Consumption"
         self._attr_device_class = SensorDeviceClass.ENERGY
         self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
         self._attr_state_class = SensorStateClass.TOTAL
@@ -267,9 +301,9 @@ class DailyConsumptionSensor(EonNextSensorBase):
 class StandingChargeSensor(EonNextSensorBase):
     """Daily standing charge (inc VAT)."""
 
-    def __init__(self, coordinator, meter):
-        super().__init__(coordinator, meter.serial)
-        self._attr_name = f"{meter.serial} Standing Charge"
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Standing Charge"
         self._attr_device_class = SensorDeviceClass.MONETARY
         self._attr_native_unit_of_measurement = "GBP"
         self._attr_state_class = SensorStateClass.TOTAL
@@ -285,9 +319,9 @@ class StandingChargeSensor(EonNextSensorBase):
 class PreviousDayCostSensor(EonNextSensorBase):
     """Previous day's total cost inc VAT (consumption + standing charge)."""
 
-    def __init__(self, coordinator, meter):
-        super().__init__(coordinator, meter.serial)
-        self._attr_name = f"{meter.serial} Previous Day Cost"
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Previous Day Cost"
         self._attr_device_class = SensorDeviceClass.MONETARY
         self._attr_native_unit_of_measurement = "GBP"
         self._attr_state_class = SensorStateClass.TOTAL
@@ -311,9 +345,9 @@ class PreviousDayCostSensor(EonNextSensorBase):
 class PreviousDayConsumptionSensor(EonNextSensorBase):
     """Yesterday's total consumption."""
 
-    def __init__(self, coordinator, meter):
-        super().__init__(coordinator, meter.serial)
-        self._attr_name = f"{meter.serial} Previous Day Consumption"
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Previous Day Consumption"
         self._attr_device_class = SensorDeviceClass.ENERGY
         self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
         self._attr_state_class = SensorStateClass.MEASUREMENT
@@ -337,9 +371,9 @@ class PreviousDayConsumptionSensor(EonNextSensorBase):
 class CurrentUnitRateSensor(EonNextSensorBase):
     """Current energy unit rate (inc VAT) for use with the HA Energy Dashboard."""
 
-    def __init__(self, coordinator, meter):
-        super().__init__(coordinator, meter.serial)
-        self._attr_name = f"{meter.serial} Current Unit Rate"
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Current Unit Rate"
         self._attr_device_class = SensorDeviceClass.MONETARY
         self._attr_native_unit_of_measurement = f"GBP/{UnitOfEnergy.KILO_WATT_HOUR}"
         self._attr_icon = "mdi:currency-gbp"
@@ -355,9 +389,9 @@ class CurrentUnitRateSensor(EonNextSensorBase):
 class CurrentTariffSensor(EonNextSensorBase):
     """Current active tariff name for a meter point."""
 
-    def __init__(self, coordinator, meter):
-        super().__init__(coordinator, meter.serial)
-        self._attr_name = f"{meter.serial} Current Tariff"
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Current Tariff"
         self._attr_icon = "mdi:tag-text-outline"
         self._attr_unique_id = f"{meter.serial}__current_tariff"
 
@@ -387,10 +421,15 @@ class CurrentTariffSensor(EonNextSensorBase):
 class AccountBalanceSensor(EonNextSensorBase):
     """Account balance in pounds."""
 
-    def __init__(self, coordinator, account_number: str):
-        super().__init__(coordinator, f"account::{account_number}")
+    def __init__(
+        self,
+        coordinator,
+        account_number: str,
+        device_info: DeviceInfo | None = None,
+    ):
+        super().__init__(coordinator, f"account::{account_number}", device_info)
         self._account_number = account_number
-        self._attr_name = f"{account_number} Account Balance"
+        self._attr_name = f"{account_label(account_number)} Balance"
         self._attr_device_class = SensorDeviceClass.MONETARY
         self._attr_native_unit_of_measurement = "GBP"
         self._attr_icon = "mdi:wallet-outline"
@@ -413,9 +452,9 @@ class AccountBalanceSensor(EonNextSensorBase):
 class SmartChargingScheduleSensor(EonNextSensorBase):
     """Smart charging schedule status."""
 
-    def __init__(self, coordinator, charger):
-        super().__init__(coordinator, ev_data_key(charger.device_id))
-        self._attr_name = f"{charger.serial} Smart Charging Schedule"
+    def __init__(self, coordinator, charger, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, ev_data_key(charger.device_id), device_info)
+        self._attr_name = f"{charger_label(charger)} Schedule"
         self._attr_icon = "mdi:ev-station"
         self._attr_unique_id = f"{charger.device_id}__smart_charging_schedule"
 
@@ -439,9 +478,9 @@ class SmartChargingScheduleSensor(EonNextSensorBase):
 class NextChargeStartSensor(EonNextSensorBase):
     """Start time of next EV charge slot."""
 
-    def __init__(self, coordinator, charger):
-        super().__init__(coordinator, ev_data_key(charger.device_id))
-        self._attr_name = f"{charger.serial} Next Charge Start"
+    def __init__(self, coordinator, charger, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, ev_data_key(charger.device_id), device_info)
+        self._attr_name = f"{charger_label(charger)} Next Charge Start"
         self._attr_device_class = SensorDeviceClass.TIMESTAMP
         self._attr_icon = "mdi:clock-start"
         self._attr_unique_id = f"{charger.device_id}__next_charge_start"
@@ -457,9 +496,9 @@ class NextChargeStartSensor(EonNextSensorBase):
 class NextChargeEndSensor(EonNextSensorBase):
     """End time of next EV charge slot."""
 
-    def __init__(self, coordinator, charger):
-        super().__init__(coordinator, ev_data_key(charger.device_id))
-        self._attr_name = f"{charger.serial} Next Charge End"
+    def __init__(self, coordinator, charger, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, ev_data_key(charger.device_id), device_info)
+        self._attr_name = f"{charger_label(charger)} Next Charge End"
         self._attr_device_class = SensorDeviceClass.TIMESTAMP
         self._attr_icon = "mdi:clock-end"
         self._attr_unique_id = f"{charger.device_id}__next_charge_end"
@@ -475,9 +514,9 @@ class NextChargeEndSensor(EonNextSensorBase):
 class NextChargeStartSlot2Sensor(EonNextSensorBase):
     """Start time of the second EV charge slot."""
 
-    def __init__(self, coordinator, charger):
-        super().__init__(coordinator, ev_data_key(charger.device_id))
-        self._attr_name = f"{charger.serial} Next Charge Start 2"
+    def __init__(self, coordinator, charger, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, ev_data_key(charger.device_id), device_info)
+        self._attr_name = f"{charger_label(charger)} Next Charge Start 2"
         self._attr_device_class = SensorDeviceClass.TIMESTAMP
         self._attr_icon = "mdi:clock-start"
         self._attr_unique_id = f"{charger.device_id}__next_charge_start_2"
@@ -493,9 +532,9 @@ class NextChargeStartSlot2Sensor(EonNextSensorBase):
 class NextChargeEndSlot2Sensor(EonNextSensorBase):
     """End time of the second EV charge slot."""
 
-    def __init__(self, coordinator, charger):
-        super().__init__(coordinator, ev_data_key(charger.device_id))
-        self._attr_name = f"{charger.serial} Next Charge End 2"
+    def __init__(self, coordinator, charger, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, ev_data_key(charger.device_id), device_info)
+        self._attr_name = f"{charger_label(charger)} Next Charge End 2"
         self._attr_device_class = SensorDeviceClass.TIMESTAMP
         self._attr_icon = "mdi:clock-end"
         self._attr_unique_id = f"{charger.device_id}__next_charge_end_2"
@@ -511,9 +550,9 @@ class NextChargeEndSlot2Sensor(EonNextSensorBase):
 class PreviousUnitRateSensor(EonNextSensorBase):
     """Most recent unit rate that differs from the current rate."""
 
-    def __init__(self, coordinator, meter):
-        super().__init__(coordinator, meter.serial)
-        self._attr_name = f"{meter.serial} Previous Unit Rate"
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Previous Unit Rate"
         self._attr_device_class = SensorDeviceClass.MONETARY
         self._attr_native_unit_of_measurement = f"GBP/{UnitOfEnergy.KILO_WATT_HOUR}"
         self._attr_icon = "mdi:currency-gbp"
@@ -560,9 +599,9 @@ class PreviousUnitRateSensor(EonNextSensorBase):
 class NextUnitRateSensor(EonNextSensorBase):
     """Next upcoming unit rate that differs from the current rate."""
 
-    def __init__(self, coordinator, meter):
-        super().__init__(coordinator, meter.serial)
-        self._attr_name = f"{meter.serial} Next Unit Rate"
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Next Unit Rate"
         self._attr_device_class = SensorDeviceClass.MONETARY
         self._attr_native_unit_of_measurement = f"GBP/{UnitOfEnergy.KILO_WATT_HOUR}"
         self._attr_icon = "mdi:currency-gbp"
@@ -609,9 +648,9 @@ class NextUnitRateSensor(EonNextSensorBase):
 class ExportUnitRateSensor(EonNextSensorBase):
     """Current export unit rate for export meters."""
 
-    def __init__(self, coordinator, meter):
-        super().__init__(coordinator, meter.serial)
-        self._attr_name = f"{meter.serial} Export Unit Rate"
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Unit Rate"
         self._attr_device_class = SensorDeviceClass.MONETARY
         self._attr_native_unit_of_measurement = f"GBP/{UnitOfEnergy.KILO_WATT_HOUR}"
         self._attr_icon = "mdi:solar-power"
@@ -642,9 +681,9 @@ class ExportUnitRateSensor(EonNextSensorBase):
 class ExportDailyConsumptionSensor(EonNextSensorBase):
     """Daily export consumption for export meters."""
 
-    def __init__(self, coordinator, meter):
-        super().__init__(coordinator, meter.serial)
-        self._attr_name = f"{meter.serial} Export Daily Consumption"
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Daily Consumption"
         self._attr_device_class = SensorDeviceClass.ENERGY
         self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
         self._attr_state_class = SensorStateClass.TOTAL
@@ -677,18 +716,22 @@ class CostTrackerSensor(RestoreEntity, SensorEntity):
     _attr_state_class = SensorStateClass.TOTAL
     _attr_icon = "mdi:cash-plus"
     _attr_suggested_display_precision = 4
+    _attr_has_entity_name = True
 
     def __init__(
         self,
         manager: EonNextCostTrackerManager,
         tracker_id: str,
+        device_info: DeviceInfo | None = None,
     ) -> None:
         self._manager = manager
         self._tracker_id = tracker_id
         self._attr_unique_id = f"cost_tracker__{self._manager.entry_id}__{tracker_id}"
         config = self._manager.get_config(tracker_id)
         display_name = config.name if config else tracker_id
-        self._attr_name = f"{display_name} Cost Tracker"
+        self._attr_name = f"Cost Tracker {display_name}"
+        if device_info is not None:
+            self._attr_device_info = device_info
 
     async def async_added_to_hass(self) -> None:
         """Register tracker-state listener."""

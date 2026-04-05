@@ -91,6 +91,6 @@ class EonRangePicker extends LitElement {
   }
 }
 
-if (!customElements.get('eon-range-picker')) {
-  customElements.define('eon-range-picker', EonRangePicker)
+if (!customElements.get('eon-fork-range-picker')) {
+  customElements.define('eon-fork-range-picker', EonRangePicker)
 }

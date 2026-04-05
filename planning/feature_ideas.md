@@ -1,11 +1,11 @@
-# EON Next Integration: Forward-Looking Feature Roadmap
+# EON Next Fork Integration: Forward-Looking Feature Roadmap
 
 Date: 2026-02-24
-Scope: Features that are feasible or potentially feasible for future implementation in `eon-next-v2`
+Scope: Features that are feasible or potentially feasible for future implementation in `eon-next-fork-v2`
 
 ## Goal
 
-Evolve the integration from core monitoring into a richer energy-management integration while staying aligned with EON Next API capabilities.
+Evolve the integration from core monitoring into a richer energy-management integration while staying aligned with EON Next Fork API capabilities.
 
 ## Feature Feasibility Tiers
 
@@ -34,14 +34,14 @@ Evolve the integration from core monitoring into a richer energy-management inte
 
 - Intelligent charging controls (bump charge, smart charge toggle)
 - Charge target and ready-by controls
-- Greenness-style forecast signals if exposed to EON Next accounts
+- Greenness-style forecast signals if exposed to EON Next Fork accounts
 - Heat-pump device control and telemetry (only if account/device APIs are available)
 - Demand Flexibility Service feature integration if addressable by API
 
 ### Tier 4: Not Feasible with Current Provider Constraints
 
-- Features tied to products/programs not offered to EON Next customers
-- Features requiring provider-specific hardware telemetry not available via EON Next
+- Features tied to products/programs not offered to EON Next Fork customers
+- Features requiring provider-specific hardware telemetry not available via EON Next Fork
 
 ## Suggested Delivery Phases
 

@@ -12,9 +12,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from custom_components.eon_next.binary_sensor import OffPeakBinarySensor
-from custom_components.eon_next.event import CurrentDayRatesEvent
-from custom_components.eon_next.sensor import (
+from custom_components.eon_next_fork.binary_sensor import OffPeakBinarySensor
+from custom_components.eon_next_fork.event import CurrentDayRatesEvent
+from custom_components.eon_next_fork.sensor import (
     ExportDailyConsumptionSensor,
     ExportUnitRateSensor,
     NextUnitRateSensor,

@@ -87,6 +87,6 @@ class EonSummaryCardEditor extends LitElement {
   }
 }
 
-if (!customElements.get('eon-next-summary-card-editor')) {
-  customElements.define('eon-next-summary-card-editor', EonSummaryCardEditor)
+if (!customElements.get('eon-next-fork-summary-card-editor')) {
+  customElements.define('eon-next-fork-summary-card-editor', EonSummaryCardEditor)
 }

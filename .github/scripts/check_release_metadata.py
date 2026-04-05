@@ -29,7 +29,7 @@ manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 manifest_version = manifest.get("version")
 if not isinstance(manifest_version, str) or not re.fullmatch(r"\d+\.\d+\.\d+", manifest_version):
     fail(
-        "custom_components/eon_next/manifest.json version must be a SemVer string like X.Y.Z"
+        "custom_components/eon_next_fork/manifest.json version must be a SemVer string like X.Y.Z"
     )
 
 const_text = CONST_PATH.read_text(encoding="utf-8")

@@ -18,7 +18,7 @@ class EonNextConsumptionBreakdownCard extends LitElement {
 
   static async getConfigElement() {
     await import('./editors/meter-card-editor')
-    return document.createElement('eon-next-meter-card-editor')
+    return document.createElement('eon-next-fork-meter-card-editor')
   }
 
   @property({ attribute: false }) hass!: HomeAssistant
@@ -66,10 +66,10 @@ class EonNextConsumptionBreakdownCard extends LitElement {
           ${label} Cost Breakdown
         </div>
         <div class="card-content">
-          <eon-consumption-breakdown-view
+          <eon-fork-consumption-breakdown-view
             .hass=${this.hass}
             .meter=${meter}
-          ></eon-consumption-breakdown-view>
+          ></eon-fork-consumption-breakdown-view>
         </div>
       </ha-card>
     `
@@ -85,6 +85,6 @@ class EonNextConsumptionBreakdownCard extends LitElement {
 }
 
 customElements.define(
-  'eon-next-consumption-breakdown-card',
+  'eon-next-fork-consumption-breakdown-card',
   EonNextConsumptionBreakdownCard
 )

@@ -1,8 +1,8 @@
-# EON Next HACS Dashboard Plan
+# EON Next Fork HACS Dashboard Plan
 
 Date: 2026-02-25
 Status: Draft
-Scope: Plan for adding a custom dashboard/panel to the `eon-next-v2` HACS integration
+Scope: Plan for adding a custom dashboard/panel to the `eon-next-fork-v2` HACS integration
 
 ## Goal
 
@@ -90,10 +90,10 @@ await hass.http.async_register_static_paths([
 # Register the sidebar panel
 await panel_custom.async_register_panel(
     hass,
-    webcomponent_name="eon-next-panel",
+    webcomponent_name="eon-next-fork-panel",
     frontend_url_path=DOMAIN,
     module_url=PANEL_URL,
-    sidebar_title="EON Next",
+    sidebar_title="EON Next Fork",
     sidebar_icon="mdi:lightning-bolt",
     require_admin=False,
     config={},
@@ -124,11 +124,11 @@ class EonNextPanel extends LitElement {
   @property({ type: Object }) panel!: any;
 
   render() {
-    return html`<div>EON Next Energy Dashboard</div>`;
+    return html`<div>EON Next Fork Energy Dashboard</div>`;
   }
 }
 
-customElements.define("eon-next-panel", EonNextPanel);
+customElements.define("eon-next-fork-panel", EonNextPanel);
 ```
 
 **`embed_iframe` guidance**:
@@ -167,8 +167,8 @@ We use LitElement, so `embed_iframe` is not needed (simpler, lighter weight, dir
 
 | User Type | What They Get | How |
 |---|---|---|
-| **Casual user** | Full energy overview in sidebar | Panel auto-registers; click "EON Next" in sidebar |
-| **Power user** | Individual cards on their own dashboards | Cards appear in the Lovelace card picker; search "EON Next" |
+| **Casual user** | Full energy overview in sidebar | Panel auto-registers; click "EON Next Fork" in sidebar |
+| **Power user** | Individual cards on their own dashboards | Cards appear in the Lovelace card picker; search "EON Next Fork" |
 | **Minimalist** | Sensors only, no UI clutter | Disable panel via options flow; ignore cards |
 
 ### Trade-offs
@@ -242,16 +242,16 @@ The same visual components used inside the sidebar panel are also registered as 
 
 | Card | Element Name | Description | Config Options |
 |---|---|---|---|
-| **Consumption Card** | `eon-next-consumption-card` | Daily electricity/gas consumption with sparkline trend | `meter_type`, `days`, `show_chart` |
-| **Cost Card** | `eon-next-cost-card` | Cost breakdown with standing charges and daily total | `meter_type`, `show_standing_charge`, `show_chart` |
-| **Meter Card** | `eon-next-meter-card` | Latest meter reading with date and reading history | `meter_type`, `show_history` |
-| **EV Schedule Card** | `eon-next-ev-card` | Smart charging schedule timeline | `show_second_slot` |
-| **Summary Card** | `eon-next-summary-card` | Compact all-in-one overview (mini version of the panel) | `show_gas`, `show_ev`, `show_costs` |
+| **Consumption Card** | `eon-next-fork-consumption-card` | Daily electricity/gas consumption with sparkline trend | `meter_type`, `days`, `show_chart` |
+| **Cost Card** | `eon-next-fork-cost-card` | Cost breakdown with standing charges and daily total | `meter_type`, `show_standing_charge`, `show_chart` |
+| **Meter Card** | `eon-next-fork-meter-card` | Latest meter reading with date and reading history | `meter_type`, `show_history` |
+| **EV Schedule Card** | `eon-next-fork-ev-card` | Smart charging schedule timeline | `show_second_slot` |
+| **Summary Card** | `eon-next-fork-summary-card` | Compact all-in-one overview (mini version of the panel) | `show_gas`, `show_ev`, `show_costs` |
 
 ### Card Configuration Example (YAML)
 
 ```yaml
-type: custom:eon-next-consumption-card
+type: custom:eon-next-fork-consumption-card
 meter_type: electricity
 days: 7
 show_chart: true
@@ -265,8 +265,8 @@ Cards are auto-registered in the Lovelace card picker so users can find them via
 // Register cards in the HA card picker
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "eon-next-consumption-card",
-  name: "EON Next Consumption",
+  type: "eon-next-fork-consumption-card",
+  name: "EON Next Fork Consumption",
   preview: true,
   description: "Shows daily electricity or gas consumption with trend chart",
 });
@@ -352,7 +352,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 For YAML-mode users, cards remain accessible by manually adding:
 ```yaml
 resources:
-  - url: /eon_next/cards.js
+  - url: /eon_next_fork/cards.js
     type: module
 ```
 
@@ -363,7 +363,7 @@ resources:
 ### File Structure
 
 ```
-custom_components/eon_next/
+custom_components/eon_next_fork/
 ├── __init__.py              # Modified: async_setup for cards; async_setup_entry for panel
 ├── const.py                 # Modified: add frontend constants + INTEGRATION_VERSION
 ├── manifest.json            # Modified: add frontend/http/panel_custom/lovelace deps
@@ -419,26 +419,26 @@ The panel needs data beyond what entity states provide. Define WebSocket command
 ```python
 # Commands to register (used by both the panel and standalone cards):
 
-"eon_next/version"
+"eon_next_fork/version"
 # Returns: { version: "1.4.0" }
 # Used by cards for frontend/backend version mismatch detection
 
-"eon_next/dashboard_summary"
+"eon_next_fork/dashboard_summary"
 # Returns: aggregated consumption, cost, and meter data for the dashboard
 # Pulls from coordinator data and/or entity states
 
-"eon_next/consumption_history"
+"eon_next_fork/consumption_history"
 # Args: { meter_type: "electricity"|"gas", days: int }
 # Returns: daily consumption array for charting
 
-"eon_next/cost_history"
+"eon_next_fork/cost_history"
 # Args: { meter_type: "electricity"|"gas", days: int }
 # Returns: daily cost array for charting
 
-"eon_next/ev_schedule"
+"eon_next_fork/ev_schedule"
 # Returns: current EV schedule details (if SmartFlex devices exist)
 
-"eon_next/backfill_status"
+"eon_next_fork/backfill_status"
 # Returns: detailed backfill progress
 ```
 
@@ -463,11 +463,11 @@ Rollup is configured with **two entry points** that produce separate bundles:
 export default [
   {
     input: "src/panel.ts",
-    output: { file: "../custom_components/eon_next/frontend/entrypoint.js", format: "es" },
+    output: { file: "../custom_components/eon_next_fork/frontend/entrypoint.js", format: "es" },
   },
   {
     input: "src/cards/register.ts",
-    output: { file: "../custom_components/eon_next/frontend/cards.js", format: "es" },
+    output: { file: "../custom_components/eon_next_fork/frontend/cards.js", format: "es" },
   },
 ];
 ```
@@ -478,11 +478,11 @@ cd frontend/
 npm install
 npm run dev          # Rollup watch mode (both bundles)
 
-# Production build (output goes to custom_components/eon_next/frontend/)
+# Production build (output goes to custom_components/eon_next_fork/frontend/)
 npm run build        # Rollup production build with terser minification
 ```
 
-The compiled `entrypoint.js` and `cards.js` are checked into the repo under `custom_components/eon_next/frontend/` so that HACS users don't need Node.js. This matches the pattern used by HACS itself. Shared components are tree-shaken into each bundle by Rollup.
+The compiled `entrypoint.js` and `cards.js` are checked into the repo under `custom_components/eon_next_fork/frontend/` so that HACS users don't need Node.js. This matches the pattern used by HACS itself. Shared components are tree-shaken into each bundle by Rollup.
 
 ### CI Integration
 
@@ -501,30 +501,30 @@ Add a GitHub Actions workflow to verify the frontend build:
 ### Phase 1: Skeleton (Panel + Card Infrastructure)
 - Add `frontend/` source scaffold (Lit + Rollup + TypeScript, two entry points)
 - Add `panel.py` with panel registration/unregistration helpers
-- Add `websocket.py` with `eon_next/version` and `eon_next/dashboard_summary` commands
+- Add `websocket.py` with `eon_next_fork/version` and `eon_next_fork/dashboard_summary` commands
 - Register panel in `async_setup_entry`; register card JS + Lovelace resource in `async_setup`
 - Update `manifest.json` dependencies (`http`, `frontend`, `panel_custom`, `lovelace`)
-- Serve a minimal "Hello from EON Next" panel
-- Ship one skeleton card (`eon-next-summary-card`) registered in the card picker
+- Serve a minimal "Hello from EON Next Fork" panel
+- Ship one skeleton card (`eon-next-fork-summary-card`) registered in the card picker
 - Add options flow toggle to show/hide panel (default: enabled)
 - Verify HACS validation and hassfest still pass
 
 ### Phase 2: Core Dashboard Content + First Cards
 - Build shared `consumption-view` and `cost-view` components
 - Compose them into the sidebar panel layout
-- Wrap them as standalone `eon-next-consumption-card` and `eon-next-cost-card` Lovelace cards
+- Wrap them as standalone `eon-next-fork-consumption-card` and `eon-next-fork-cost-card` Lovelace cards
 - Add `setConfig()`, card picker metadata, and basic config editor for each card
-- Build `meter-view` component + `eon-next-meter-card`
-- Implement `eon_next/consumption_history` and `eon_next/cost_history` WebSocket commands
+- Build `meter-view` component + `eon-next-fork-meter-card`
+- Implement `eon_next_fork/consumption_history` and `eon_next_fork/cost_history` WebSocket commands
 - Add daily bar chart (consumption + cost)
 - Apply HA theming (light/dark, CSS variables)
 - Responsive layout for panel (desktop + mobile/narrow mode)
 - Card sizing (`getCardSize()` / `getGridOptions()`) for Lovelace layout engines
 
 ### Phase 3: EV, Diagnostics, and Summary Card
-- Build `ev-schedule-view` + `eon-next-ev-card` (conditional on SmartFlex devices)
+- Build `ev-schedule-view` + `eon-next-fork-ev-card` (conditional on SmartFlex devices)
 - Build `backfill-status` panel section (panel-only, not a standalone card)
-- Build `eon-next-summary-card` (compact all-in-one for power users)
+- Build `eon-next-fork-summary-card` (compact all-in-one for power users)
 - Add sparkline trend charts to shared components
 - Polish loading states, error states, empty states
 - Version mismatch detection (frontend/backend) with user notification
@@ -561,9 +561,9 @@ Add a GitHub Actions workflow to verify the frontend build:
 
 1. **Chart library selection**: uPlot (tiny, fast, canvas-based) vs Chart.js (popular, more features, heavier) vs custom SVG (smallest, most work). Recommendation: start with uPlot for size efficiency.
 
-2. **Historical data source**: Should charts pull from the coordinator's cached data, the HA recorder/statistics database, or the EON Next API directly? Recommendation: prefer HA statistics (already populated by our external statistics import), fall back to coordinator cache for current-day data.
+2. **Historical data source**: Should charts pull from the coordinator's cached data, the HA recorder/statistics database, or the EON Next Fork API directly? Recommendation: prefer HA statistics (already populated by our external statistics import), fall back to coordinator cache for current-day data.
 
-3. **Sidebar icon and title**: Use `mdi:lightning-bolt` and "EON Next"? Or something more specific like `mdi:home-lightning-bolt` and "Energy"? Should be configurable in options flow.
+3. **Sidebar icon and title**: Use `mdi:lightning-bolt` and "EON Next Fork"? Or something more specific like `mdi:home-lightning-bolt` and "Energy"? Should be configurable in options flow.
 
 4. **Multi-account support**: The integration supports multiple config entries (accounts). Should the panel show data for all accounts or have an account selector? Cards could accept a config entry ID. Recommendation: account selector dropdown in panel; optional `account` config key in cards.
 
@@ -575,21 +575,21 @@ Add a GitHub Actions workflow to verify the frontend build:
 
 ## Future Direction: Standalone Energy UI Integration
 
-The embedded approach (cards shipped inside this integration) is the right choice today — it keeps everything co-versioned and gives users a single install. However, the shared view components (consumption charts, cost breakdowns, EV schedules, etc.) are designed with reusability in mind and are not inherently tied to the EON Next API.
+The embedded approach (cards shipped inside this integration) is the right choice today — it keeps everything co-versioned and gives users a single install. However, the shared view components (consumption charts, cost breakdowns, EV schedules, etc.) are designed with reusability in mind and are not inherently tied to the EON Next Fork API.
 
-**Long-term vision**: Extract the frontend components into a **separate, provider-agnostic HACS "Dashboard" integration** (e.g., `energy-dashboard-cards`) that works with any energy provider — EON Next, Octopus Energy, Hildebrand Glow, or even the built-in HA Energy platform. This would:
+**Long-term vision**: Extract the frontend components into a **separate, provider-agnostic HACS "Dashboard" integration** (e.g., `energy-dashboard-cards`) that works with any energy provider — EON Next Fork, Octopus Energy, Hildebrand Glow, or even the built-in HA Energy platform. This would:
 
-- Accept generic entity IDs for consumption, cost, meter readings, and EV schedules (rather than being hard-wired to EON Next entities)
+- Accept generic entity IDs for consumption, cost, meter readings, and EV schedules (rather than being hard-wired to EON Next Fork entities)
 - Ship as a standalone HACS Frontend repo, installable independently
 - Be discoverable in the HACS "Frontend" category for broader adoption
 - Support multiple providers on a single dashboard (e.g., electricity from one provider, gas from another)
 
 **How to prepare now** (without over-engineering):
 
-1. Keep shared view components in `frontend/src/components/` decoupled from EON Next–specific WebSocket commands — they should accept data via properties, not fetch it themselves
-2. Use the WebSocket API layer (`api.ts`) as the only place that knows about `eon_next/*` command names
-3. Design card configs to accept arbitrary entity IDs alongside the current auto-discovery from EON Next entities
-4. When the standalone repo is eventually created, the shared components can be extracted with minimal refactoring, and this integration's cards can become thin wrappers that auto-configure entity IDs from the EON Next config entry
+1. Keep shared view components in `frontend/src/components/` decoupled from EON Next Fork–specific WebSocket commands — they should accept data via properties, not fetch it themselves
+2. Use the WebSocket API layer (`api.ts`) as the only place that knows about `eon_next_fork/*` command names
+3. Design card configs to accept arbitrary entity IDs alongside the current auto-discovery from EON Next Fork entities
+4. When the standalone repo is eventually created, the shared components can be extracted with minimal refactoring, and this integration's cards can become thin wrappers that auto-configure entity IDs from the EON Next Fork config entry
 
 This is not planned work — just a guiding principle for how we structure the frontend code today so that the option remains open.
 

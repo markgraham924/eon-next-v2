@@ -1,4 +1,4 @@
-"""WebSocket API schemas for the EON Next frontend.
+"""WebSocket API schemas for the EON Next Fork frontend.
 
 These dataclasses are the **single source of truth** for all data shapes
 exchanged between the Python backend and the TypeScript frontend.
@@ -19,7 +19,7 @@ from dataclasses import dataclass
 
 @dataclass
 class VersionResponse:
-    """Response from ``eon_next/version``."""
+    """Response from ``eon_next_fork/version``."""
 
     version: str
 
@@ -52,7 +52,7 @@ class EvChargerSummary:
 
 @dataclass
 class DashboardSummary:
-    """Response from ``eon_next/dashboard_summary``."""
+    """Response from ``eon_next_fork/dashboard_summary``."""
 
     meters: list[MeterSummary]
     ev_chargers: list[EvChargerSummary]
@@ -68,7 +68,7 @@ class ConsumptionHistoryEntry:
 
 @dataclass
 class ConsumptionHistoryResponse:
-    """Response from ``eon_next/consumption_history``.
+    """Response from ``eon_next_fork/consumption_history``.
 
     This command accepts ``meter_serial`` (str) and ``days`` (int, 1–30)
     as request parameters.  The typed API wrapper lives in
@@ -89,7 +89,7 @@ class EvScheduleSlot:
 
 @dataclass
 class EvScheduleResponse:
-    """Response from ``eon_next/ev_schedule``.
+    """Response from ``eon_next_fork/ev_schedule``.
 
     Accepts ``device_id`` (str) as a request parameter.
     """
@@ -113,7 +113,7 @@ class BackfillMeterProgress:
 
 @dataclass
 class BackfillStatusResponse:
-    """Response from ``eon_next/backfill_status``."""
+    """Response from ``eon_next_fork/backfill_status``."""
 
     state: str
     enabled: bool
@@ -130,9 +130,9 @@ class BackfillStatusResponse:
 # ---------------------------------------------------------------------------
 
 WS_COMMANDS: dict[str, type] = {
-    "eon_next/version": VersionResponse,
-    "eon_next/dashboard_summary": DashboardSummary,
-    "eon_next/backfill_status": BackfillStatusResponse,
+    "eon_next_fork/version": VersionResponse,
+    "eon_next_fork/dashboard_summary": DashboardSummary,
+    "eon_next_fork/backfill_status": BackfillStatusResponse,
 }
 
 # Response types for *parameterized* commands (those that accept request

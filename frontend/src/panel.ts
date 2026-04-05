@@ -61,7 +61,7 @@ class EonNextPanel extends LitElement {
 
     return html`
       <div class="header">
-        <h1>EON Next Energy</h1>
+        <h1>EON Next Fork Energy</h1>
         ${version ? html`<span class="version-badge">v${version}</span>` : nothing}
       </div>
 
@@ -83,7 +83,7 @@ class EonNextPanel extends LitElement {
             <div class="section-divider"></div>
 
             <div class="diagnostics">
-              <eon-backfill-status .hass=${this.hass}></eon-backfill-status>
+              <eon-fork-backfill-status .hass=${this.hass}></eon-fork-backfill-status>
             </div>
           `}
     `
@@ -100,22 +100,22 @@ class EonNextPanel extends LitElement {
           ${label} — ${meter.serial}
         </h2>
 
-        <eon-consumption-view .hass=${this.hass} .meter=${meter}></eon-consumption-view>
+        <eon-fork-consumption-view .hass=${this.hass} .meter=${meter}></eon-fork-consumption-view>
 
         <div class="card-divider"></div>
 
-        <eon-cost-view .hass=${this.hass} .meter=${meter}></eon-cost-view>
+        <eon-fork-cost-view .hass=${this.hass} .meter=${meter}></eon-fork-cost-view>
 
         <div class="card-divider"></div>
 
-        <eon-consumption-breakdown-view
+        <eon-fork-consumption-breakdown-view
           .hass=${this.hass}
           .meter=${meter}
-        ></eon-consumption-breakdown-view>
+        ></eon-fork-consumption-breakdown-view>
 
         <div class="card-divider"></div>
 
-        <eon-meter-view .meter=${meter}></eon-meter-view>
+        <eon-fork-meter-view .meter=${meter}></eon-fork-meter-view>
       </article>
     `
   }
@@ -128,13 +128,13 @@ class EonNextPanel extends LitElement {
           EV Charger — ${ev.serial}
         </h2>
 
-        <eon-ev-schedule-view
+        <eon-fork-ev-schedule-view
           .hass=${this.hass}
           .deviceId=${ev.device_id ?? ''}
-        ></eon-ev-schedule-view>
+        ></eon-fork-ev-schedule-view>
       </article>
     `
   }
 }
 
-customElements.define('eon-next-panel', EonNextPanel)
+customElements.define('eon-next-fork-panel', EonNextPanel)

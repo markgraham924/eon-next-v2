@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 import pytest
 
-from custom_components.eon_next.coordinator import EonNextCoordinator
+from custom_components.eon_next_fork.coordinator import EonNextCoordinator
 
 # Fixed reference time: 2025-06-15 14:00 UTC.  All tests derive
 # "yesterday" / "today" from this constant so they never become flaky

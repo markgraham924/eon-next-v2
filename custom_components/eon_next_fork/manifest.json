@@ -1,6 +1,6 @@
 {
-    "domain": "eon_next",
-    "name": "Eon Next",
+    "domain": "eon_next_fork",
+    "name": "EON Next Fork",
     "after_dependencies": [
         "frontend",
         "lovelace",
@@ -14,10 +14,10 @@
         "http",
         "recorder"
     ],
-    "documentation": "https://github.com/monsagri/eon-next-v2",
+    "documentation": "https://github.com/monsagri/eon-next-fork-v2",
     "integration_type": "hub",
     "iot_class": "cloud_polling",
-    "issue_tracker": "https://github.com/monsagri/eon-next-v2/issues",
+    "issue_tracker": "https://github.com/monsagri/eon-next-fork-v2/issues",
     "requirements": [],
     "version": "1.9.0"
 }

@@ -68,6 +68,6 @@ class EonSparklineChart extends LitElement {
   }
 }
 
-if (!customElements.get('eon-sparkline-chart')) {
-  customElements.define('eon-sparkline-chart', EonSparklineChart)
+if (!customElements.get('eon-fork-sparkline-chart')) {
+  customElements.define('eon-fork-sparkline-chart', EonSparklineChart)
 }

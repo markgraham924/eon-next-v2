@@ -1,4 +1,4 @@
-"""External statistics import for the Eon Next integration.
+"""External statistics import for the EON Next Fork integration.
 
 Imports half-hourly (or daily) consumption data as external statistics
 with correct timestamps so the Energy Dashboard attributes consumption

@@ -1,4 +1,4 @@
-"""Binary sensor platform for the Eon Next integration."""
+"""Binary sensor platform for the EON Next Fork integration."""
 
 from __future__ import annotations
 
@@ -6,9 +6,11 @@ from typing import Any
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from .device import get_entry_device_info, meter_label
 from .models import EonNextConfigEntry
 from .tariff_helpers import get_off_peak_metadata, is_off_peak
 
@@ -21,21 +23,31 @@ async def async_setup_entry(
     """Set up binary sensors from a config entry."""
     coordinator = config_entry.runtime_data.coordinator
     api = config_entry.runtime_data.api
+    device_info = get_entry_device_info(config_entry)
 
     entities: list[BinarySensorEntity] = []
     for account in api.accounts:
         for meter in account.meters:
-            entities.append(OffPeakBinarySensor(coordinator, meter))
+            entities.append(OffPeakBinarySensor(coordinator, meter, device_info))
 
     async_add_entities(entities)
 
 
 class EonNextBinarySensorBase(CoordinatorEntity, BinarySensorEntity):
-    """Base class for Eon Next binary sensors."""
+    """Base class for EON Next Fork binary sensors."""
 
-    def __init__(self, coordinator, data_key: str):
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator,
+        data_key: str,
+        device_info: DeviceInfo | None = None,
+    ):
         super().__init__(coordinator)
         self._data_key = data_key
+        if device_info is not None:
+            self._attr_device_info = device_info
 
     @property
     def _meter_data(self) -> dict[str, Any] | None:
@@ -51,9 +63,9 @@ class OffPeakBinarySensor(EonNextBinarySensorBase):
     unavailable for flat-rate tariffs that have no off-peak concept.
     """
 
-    def __init__(self, coordinator, meter):
-        super().__init__(coordinator, meter.serial)
-        self._attr_name = f"{meter.serial} Off Peak"
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Off Peak"
         self._attr_unique_id = f"{meter.serial}__off_peak"
 
     @property

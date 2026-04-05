@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The Eon Next integration."""
+"""The EON Next Fork integration."""
 
 from __future__ import annotations
 
@@ -20,6 +20,7 @@ from .const import (
     CONF_REFRESH_TOKEN,
     CONF_SHOW_CARD,
     CONF_SHOW_PANEL,
+    CONF_UPDATE_INTERVAL_MINUTES,
     DEFAULT_SHOW_CARD,
     DEFAULT_SHOW_PANEL,
     DEFAULT_UPDATE_INTERVAL_MINUTES,
@@ -31,7 +32,7 @@ from .coordinator import EonNextCoordinator
 from .cost_tracker import EonNextCostTrackerManager
 from .eonnext import EonNext, EonNextApiError
 from .models import EonNextConfigEntry, EonNextRuntimeData
-from .services import async_register_services
+from .services import async_register_services, async_unregister_services
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
@@ -186,7 +187,7 @@ async def _async_update_listener(
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: EonNextConfigEntry) -> bool:
-    """Set up Eon Next from a config entry."""
+    """Set up EON Next Fork from a config entry."""
     api = EonNext()
     authenticated = False
 
@@ -231,9 +232,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: EonNextConfigEntry) -> b
             ) from err
         if not authenticated:
             await api.async_close()
-            raise ConfigEntryAuthFailed("Failed to authenticate with Eon Next")
+            raise ConfigEntryAuthFailed("Failed to authenticate with EON Next Fork")
 
-    coordinator = EonNextCoordinator(hass, api, DEFAULT_UPDATE_INTERVAL_MINUTES)
+    coordinator = EonNextCoordinator(
+        hass,
+        api,
+        entry.options.get(CONF_UPDATE_INTERVAL_MINUTES, DEFAULT_UPDATE_INTERVAL_MINUTES),
+    )
     backfill = EonNextBackfillManager(hass, entry, api, coordinator)
     cost_trackers = EonNextCostTrackerManager(hass, entry.entry_id, coordinator)
     await backfill.async_prime()
@@ -261,7 +266,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: EonNextConfigEntry) -> b
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: EonNextConfigEntry) -> bool:
-    """Unload an Eon Next config entry."""
+    """Unload an EON Next Fork config entry."""
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
         await entry.runtime_data.cost_trackers.async_shutdown()
@@ -270,5 +275,13 @@ async def async_unload_entry(hass: HomeAssistant, entry: EonNextConfigEntry) -> 
 
         # Reconcile frontend, excluding the entry being unloaded
         await _async_reconcile_frontend(hass, exclude_entry_id=entry.entry_id)
+        remaining_loaded_entries = [
+            loaded_entry
+            for loaded_entry in hass.config_entries.async_entries(DOMAIN)
+            if loaded_entry.entry_id != entry.entry_id
+            and getattr(loaded_entry, "runtime_data", None) is not None
+        ]
+        if not remaining_loaded_entries:
+            await async_unregister_services(hass)
 
     return unload_ok

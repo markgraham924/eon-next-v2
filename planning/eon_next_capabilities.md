@@ -1,4 +1,4 @@
-# EON Next API Capabilities
+# EON Next Fork API Capabilities
 
 Date: 2026-02-24
 Source: Extracted and adapted from the appendix in `FEATURE_COMPARISON.md`
@@ -57,13 +57,13 @@ Purpose: Document API-supported capabilities and what they enable us to build.
 ### Requires investigation before commitment
 
 - Smart charging control mutations (bump charge, toggles, targets)
-- Heat-pump control/telemetry exposure on EON Next accounts
+- Heat-pump control/telemetry exposure on EON Next Fork accounts
 - DFS-style event participation data and actions
 
 ## Known Constraints
 
 - No public developer documentation equivalent to an open API portal
 - Some Kraken fields can be disabled per client/account (`KT-CT-1113`)
-- Real-time live demand features may depend on hardware not exposed through EON Next
+- Real-time live demand features may depend on hardware not exposed through EON Next Fork
 - REST availability can vary; GraphQL fallback should remain in place
 

@@ -1,4 +1,4 @@
-# EON Next API Spec (Custom, Integration-Oriented)
+# EON Next Fork API Spec (Custom, Integration-Oriented)
 
 Date: 2026-02-25  
 Scope: API paths and methods used by this integration, plus live curl verification results.

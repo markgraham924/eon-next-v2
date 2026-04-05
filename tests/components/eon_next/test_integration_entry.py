@@ -12,19 +12,21 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-import custom_components.eon_next as integration
-from custom_components.eon_next.backfill import EonNextBackfillManager
-from custom_components.eon_next.const import (
+import custom_components.eon_next_fork as integration
+from custom_components.eon_next_fork.backfill import EonNextBackfillManager
+from custom_components.eon_next_fork.const import (
     CONF_BACKFILL_ENABLED,
     CONF_EMAIL,
     CONF_PASSWORD,
     CONF_REFRESH_TOKEN,
+    CONF_UPDATE_INTERVAL_MINUTES,
     DOMAIN,
 )
-from custom_components.eon_next.coordinator import EonNextCoordinator
-from custom_components.eon_next.eonnext import EonNextApiError
+from custom_components.eon_next_fork.coordinator import EonNextCoordinator
+from custom_components.eon_next_fork.eonnext import EonNextApiError
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntryState
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import recorder as recorder_helper
 from homeassistant.helpers import entity_registry as er
 from homeassistant.setup import async_setup_component
@@ -121,7 +123,7 @@ async def _fake_backfill_run(self: EonNextBackfillManager) -> None:
 def _mock_entry(*, options: dict[str, Any] | None = None) -> MockConfigEntry:
     return MockConfigEntry(
         domain=DOMAIN,
-        title="Eon Next",
+        title="EON Next Fork",
         data={
             CONF_EMAIL: "user@example.com",
             CONF_PASSWORD: "secret",
@@ -149,13 +151,13 @@ async def _ensure_recorder(hass: HomeAssistant) -> None:
             {"recorder": {"db_url": "sqlite://", "commit_interval": 0}},
         )
     await hass.async_block_till_done()
-    await hass.data[recorder_helper.DATA_RECORDER].db_connected
+    assert await recorder_helper.async_wait_recorder(hass)
 
 
 def _status_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
     registry = er.async_get(hass)
     for registry_entry in er.async_entries_for_config_entry(registry, entry.entry_id):
-        if registry_entry.unique_id == "eon_next__historical_backfill_status":
+        if registry_entry.unique_id == "eon_next_fork__historical_backfill_status":
             return registry_entry.entity_id
     raise AssertionError("Missing historical backfill status entity")
 
@@ -212,6 +214,34 @@ async def test_setup_uses_refresh_token_and_creates_status_sensor(
 
 
 @pytest.mark.asyncio
+async def test_setup_groups_entities_under_one_device(
+    hass: HomeAssistant,
+    enable_custom_integrations: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """All entities should be attached to the shared config-entry device."""
+    del enable_custom_integrations
+    fake_api = FakeApi(refresh_login_result=True)
+    _patch_integration(monkeypatch, fake_api)
+    entry = _mock_entry()
+
+    await _setup_entry(hass, entry)
+
+    entity_registry = er.async_get(hass)
+    device_registry = dr.async_get(hass)
+    device_entry = device_registry.async_get_device(identifiers={(DOMAIN, entry.entry_id)})
+    entity_device_ids = {
+        registry_entry.device_id
+        for registry_entry in er.async_entries_for_config_entry(
+            entity_registry, entry.entry_id
+        )
+    }
+
+    assert device_entry is not None
+    assert entity_device_ids == {device_entry.id}
+
+
+@pytest.mark.asyncio
 async def test_setup_falls_back_to_username_password_when_refresh_fails(
     hass: HomeAssistant,
     enable_custom_integrations: None,
@@ -227,6 +257,25 @@ async def test_setup_falls_back_to_username_password_when_refresh_fails(
 
     assert fake_api.refresh_login_calls == ["refresh-token"]
     assert fake_api.password_login_calls == [("user@example.com", "secret")]
+
+
+@pytest.mark.asyncio
+async def test_setup_uses_configurable_update_interval(
+    hass: HomeAssistant,
+    enable_custom_integrations: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Coordinator polling interval should honor the options flow setting."""
+    del enable_custom_integrations
+    fake_api = FakeApi(refresh_login_result=True)
+    _patch_integration(monkeypatch, fake_api)
+    entry = _mock_entry(options={CONF_UPDATE_INTERVAL_MINUTES: 45})
+
+    await _setup_entry(hass, entry)
+
+    assert entry.runtime_data.coordinator.update_interval == datetime.timedelta(
+        minutes=45
+    )
 
 
 @pytest.mark.asyncio
@@ -290,6 +339,32 @@ async def test_unload_entry_closes_api_client(
 
     assert fake_api.closed is True
     assert entry.state is ConfigEntryState.NOT_LOADED
+
+
+@pytest.mark.asyncio
+async def test_unload_last_entry_unregisters_services(
+    hass: HomeAssistant,
+    enable_custom_integrations: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Removing the final config entry should remove integration services too."""
+    del enable_custom_integrations
+    fake_api = FakeApi(refresh_login_result=True)
+    _patch_integration(monkeypatch, fake_api)
+    entry = _mock_entry()
+
+    await _setup_entry(hass, entry)
+
+    assert hass.services.has_service(DOMAIN, "add_cost_tracker")
+    assert hass.services.has_service(DOMAIN, "reset_cost_tracker")
+    assert hass.services.has_service(DOMAIN, "update_cost_tracker")
+
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert not hass.services.has_service(DOMAIN, "add_cost_tracker")
+    assert not hass.services.has_service(DOMAIN, "reset_cost_tracker")
+    assert not hass.services.has_service(DOMAIN, "update_cost_tracker")
 
 
 @pytest.mark.asyncio

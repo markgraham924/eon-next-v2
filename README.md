@@ -33,8 +33,8 @@ Custom integration for E.ON Next accounts in Home Assistant.
 - Automatic retry on API outages — transient connectivity failures during login defer setup instead of invalidating stored credentials.
 - Network hardening for auth/login calls: GraphQL requests now retry once over IPv4 after connector-level network-unreachable failures.
 - Diagnostic status sensor for historical backfill progress.
-- **EON Next Dashboard**: A sidebar panel providing a single-pane energy overview (consumption, costs, meter readings, EV schedule).
-- **Lovelace cards**: Embeddable cards (starting with `eon-next-summary-card`) for power users to add to their own dashboards.
+- **EON Next Fork Dashboard**: A sidebar panel providing a single-pane energy overview (consumption, costs, meter readings, EV schedule).
+- **Lovelace cards**: Embeddable cards (starting with `eon-next-fork-summary-card`) for power users to add to their own dashboards.
 
 ## Requirements
 
@@ -46,16 +46,16 @@ Custom integration for E.ON Next accounts in Home Assistant.
 1. Open HACS in Home Assistant.
 2. Go to **Integrations**.
 3. If this repository is not already listed, add it as a custom repository:
-   - URL: `https://github.com/monsagri/eon-next-v2`
+   - URL: `https://github.com/monsagri/eon-next-fork-v2`
    - Category: **Integration**
-4. Find **Eon Next Integration** in HACS and install it.
+4. Find **EON Next Fork Integration** in HACS and install it.
 5. Restart Home Assistant.
 6. Go to **Settings -> Devices & Services -> Add Integration**.
-7. Search for **Eon Next** and complete login.
+7. Search for **EON Next Fork** and complete login.
 
 ## Manual Installation
 
-1. Copy `custom_components/eon_next` into your Home Assistant `custom_components` directory.
+1. Copy `custom_components/eon_next_fork` into your Home Assistant `custom_components` directory.
 2. Restart Home Assistant.
 3. Add the integration from **Settings -> Devices & Services**.
 
@@ -71,7 +71,7 @@ In `1.2.0`, the `Daily Consumption` sensor state class changed to `total` and no
 
 The integration now supports a slow, resumable historical backfill for Energy Dashboard statistics.
 
-- Configure it in **Settings -> Devices & Services -> Eon Next -> Configure**.
+- Configure it in **Settings -> Devices & Services -> EON Next Fork -> Configure**.
 - Backfill progress is persisted and resumes across Home Assistant restarts.
 - To ensure a true full-history rebuild, enable the option to clear/rebuild existing Eon statistics first.
 
@@ -86,9 +86,9 @@ Conservative defaults:
 
 ## Energy Dashboard Panel
 
-After installation, an **EON Next** entry appears in the Home Assistant sidebar. It provides a zero-config overview of your meters, consumption, costs, and EV charging status.
+After installation, an **EON Next Fork** entry appears in the Home Assistant sidebar. It provides a zero-config overview of your meters, consumption, costs, and EV charging status.
 
-- The sidebar panel is enabled by default. To hide it, go to **Settings -> Devices & Services -> Eon Next -> Configure** and disable "Show EON Next dashboard in sidebar".
+- The sidebar panel is enabled by default. To hide it, go to **Settings -> Devices & Services -> EON Next Fork -> Configure** and disable "Show EON Next Fork dashboard in sidebar".
 - The panel uses data already fetched by the integration's coordinator — no extra API calls.
 - "Today's cost" is shown as a derived value from today's consumption: `(kWh * current unit rate) + daily standing charge`.
 - "Month to date" cost is shown as a running total computed from daily consumption history.
@@ -103,23 +103,23 @@ After installation, an **EON Next** entry appears in the Home Assistant sidebar.
 
 The integration ships Lovelace cards that power users can add to any dashboard:
 
-- **EON Next Summary** (`custom:eon-next-summary-card`) — compact all-in-one overview.
-- **EON Next Consumption** (`custom:eon-next-consumption-card`) — daily consumption bar chart with a time-range picker (7d / 30d / 90d / 1y), missing days shown as zero, plus an estimated daily cost overlay (£) on a second y-axis when tariff pricing is available.
-- **EON Next Cost Breakdown** (`custom:eon-next-consumption-breakdown-card`) — pie chart showing usage charges vs standing charges with day, week, and month views. Helps visualise what proportion of your bill is consumption vs fixed daily standing charge.
-- **EON Next Costs** (`custom:eon-next-cost-card`) — today/yesterday costs, month-to-date running total, standing charge, and unit rate.
-- **EON Next Meter Reading** (`custom:eon-next-reading-card`) — latest meter reading, date, and tariff.
-- **EON Next EV Charger** (`custom:eon-next-ev-card`) — EV smart charging schedule status and upcoming slots.
+- **EON Next Fork Summary** (`custom:eon-next-fork-summary-card`) — compact all-in-one overview.
+- **EON Next Fork Consumption** (`custom:eon-next-fork-consumption-card`) — daily consumption bar chart with a time-range picker (7d / 30d / 90d / 1y), missing days shown as zero, plus an estimated daily cost overlay (£) on a second y-axis when tariff pricing is available.
+- **EON Next Fork Cost Breakdown** (`custom:eon-next-fork-consumption-breakdown-card`) — pie chart showing usage charges vs standing charges with day, week, and month views. Helps visualise what proportion of your bill is consumption vs fixed daily standing charge.
+- **EON Next Fork Costs** (`custom:eon-next-fork-cost-card`) — today/yesterday costs, month-to-date running total, standing charge, and unit rate.
+- **EON Next Fork Meter Reading** (`custom:eon-next-fork-reading-card`) — latest meter reading, date, and tariff.
+- **EON Next Fork EV Charger** (`custom:eon-next-fork-ev-card`) — EV smart charging schedule status and upcoming slots.
 - All cards include visual config editors accessible from the Lovelace card picker UI — no YAML required to configure meter type, serial, or display options.
 - Summary card rows include a derived "Today's cost" value using the same formula `(kWh * current unit rate) + daily standing charge`.
 - Summary-card sparkline history loads per meter in parallel for faster initial render on multi-meter setups.
 
-The summary card is registered by default and appears in the Lovelace card picker (storage mode). To disable it, go to **Settings -> Devices & Services -> Eon Next -> Configure** and turn off "Register EON Next summary card for Lovelace dashboards".
+The summary card is registered by default and appears in the Lovelace card picker (storage mode). To disable it, go to **Settings -> Devices & Services -> EON Next Fork -> Configure** and turn off "Register EON Next Fork summary card for Lovelace dashboards".
 
 For YAML-mode dashboards, add the resource manually instead:
 
 ```yaml
 resources:
-  - url: /eon_next/cards
+  - url: /eon_next_fork/cards
     type: module
 ```
 

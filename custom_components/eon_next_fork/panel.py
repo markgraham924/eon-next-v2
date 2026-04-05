@@ -1,4 +1,4 @@
-"""Sidebar panel registration for the EON Next dashboard."""
+"""Sidebar panel registration for the EON Next Fork dashboard."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ _STATIC_PATH_REGISTERED_KEY = f"{DOMAIN}_panel_static_registered"
 
 
 async def async_register_panel(hass: HomeAssistant) -> None:
-    """Register the EON Next sidebar panel.
+    """Register the EON Next Fork sidebar panel.
 
     Guarded so that only the first config entry triggers registration.
     Requires the ``panel_custom`` component; silently skips if unavailable.
@@ -50,7 +50,7 @@ async def async_register_panel(hass: HomeAssistant) -> None:
 
     await panel_custom.async_register_panel(
         hass,
-        webcomponent_name="eon-next-panel",
+        webcomponent_name="eon-next-fork-panel",
         frontend_url_path=DOMAIN,
         module_url=PANEL_URL,
         sidebar_title=PANEL_TITLE,
@@ -59,11 +59,11 @@ async def async_register_panel(hass: HomeAssistant) -> None:
         config={},
     )
 
-    _LOGGER.debug("EON Next sidebar panel registered")
+    _LOGGER.debug("EON Next Fork sidebar panel registered")
 
 
 async def async_unregister_panel(hass: HomeAssistant) -> None:
-    """Remove the EON Next sidebar panel.
+    """Remove the EON Next Fork sidebar panel.
 
     Should only be called when the last config entry is being unloaded.
     """
@@ -76,4 +76,4 @@ async def async_unregister_panel(hass: HomeAssistant) -> None:
     from homeassistant.components import frontend  # noqa: E402
 
     frontend.async_remove_panel(hass, DOMAIN)
-    _LOGGER.debug("EON Next sidebar panel removed")
+    _LOGGER.debug("EON Next Fork sidebar panel removed")

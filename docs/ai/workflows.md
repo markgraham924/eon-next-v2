@@ -25,7 +25,7 @@ npm install
 Minimum required (Python):
 
 ```bash
-python -m compileall custom_components/eon_next
+python -m compileall custom_components/eon_next_fork
 basedpyright -p pyrightconfig.json
 python3 .github/scripts/check_release_metadata.py
 ```
