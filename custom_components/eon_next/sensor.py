@@ -160,7 +160,7 @@ class HistoricalBackfillStatusSensor(CoordinatorEntity, SensorEntity):
         self._attr_name = "Historical Backfill Status"
         self._attr_icon = "mdi:database-clock-outline"
         self._attr_entity_category = EntityCategory.DIAGNOSTIC
-        self._attr_unique_id = "eon_next_fork__historical_backfill_status"
+        self._attr_unique_id = "eon_next__historical_backfill_status"
         self._attr_has_entity_name = True
         if device_info is not None:
             self._attr_device_info = device_info
@@ -779,3 +779,4 @@ class CostTrackerSensor(RestoreEntity, SensorEntity):
             "enabled": config.enabled,
             "entry_id": self._manager.entry_id,
         }
+

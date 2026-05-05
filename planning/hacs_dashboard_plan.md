@@ -352,7 +352,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 For YAML-mode users, cards remain accessible by manually adding:
 ```yaml
 resources:
-  - url: /eon_next_fork/cards.js
+  - url: /eon_next/cards.js
     type: module
 ```
 
@@ -363,7 +363,7 @@ resources:
 ### File Structure
 
 ```
-custom_components/eon_next_fork/
+custom_components/eon_next/
 ├── __init__.py              # Modified: async_setup for cards; async_setup_entry for panel
 ├── const.py                 # Modified: add frontend constants + INTEGRATION_VERSION
 ├── manifest.json            # Modified: add frontend/http/panel_custom/lovelace deps
@@ -419,26 +419,26 @@ The panel needs data beyond what entity states provide. Define WebSocket command
 ```python
 # Commands to register (used by both the panel and standalone cards):
 
-"eon_next_fork/version"
+"eon_next/version"
 # Returns: { version: "1.4.0" }
 # Used by cards for frontend/backend version mismatch detection
 
-"eon_next_fork/dashboard_summary"
+"eon_next/dashboard_summary"
 # Returns: aggregated consumption, cost, and meter data for the dashboard
 # Pulls from coordinator data and/or entity states
 
-"eon_next_fork/consumption_history"
+"eon_next/consumption_history"
 # Args: { meter_type: "electricity"|"gas", days: int }
 # Returns: daily consumption array for charting
 
-"eon_next_fork/cost_history"
+"eon_next/cost_history"
 # Args: { meter_type: "electricity"|"gas", days: int }
 # Returns: daily cost array for charting
 
-"eon_next_fork/ev_schedule"
+"eon_next/ev_schedule"
 # Returns: current EV schedule details (if SmartFlex devices exist)
 
-"eon_next_fork/backfill_status"
+"eon_next/backfill_status"
 # Returns: detailed backfill progress
 ```
 
@@ -463,11 +463,11 @@ Rollup is configured with **two entry points** that produce separate bundles:
 export default [
   {
     input: "src/panel.ts",
-    output: { file: "../custom_components/eon_next_fork/frontend/entrypoint.js", format: "es" },
+    output: { file: "../custom_components/eon_next/frontend/entrypoint.js", format: "es" },
   },
   {
     input: "src/cards/register.ts",
-    output: { file: "../custom_components/eon_next_fork/frontend/cards.js", format: "es" },
+    output: { file: "../custom_components/eon_next/frontend/cards.js", format: "es" },
   },
 ];
 ```
@@ -478,11 +478,11 @@ cd frontend/
 npm install
 npm run dev          # Rollup watch mode (both bundles)
 
-# Production build (output goes to custom_components/eon_next_fork/frontend/)
+# Production build (output goes to custom_components/eon_next/frontend/)
 npm run build        # Rollup production build with terser minification
 ```
 
-The compiled `entrypoint.js` and `cards.js` are checked into the repo under `custom_components/eon_next_fork/frontend/` so that HACS users don't need Node.js. This matches the pattern used by HACS itself. Shared components are tree-shaken into each bundle by Rollup.
+The compiled `entrypoint.js` and `cards.js` are checked into the repo under `custom_components/eon_next/frontend/` so that HACS users don't need Node.js. This matches the pattern used by HACS itself. Shared components are tree-shaken into each bundle by Rollup.
 
 ### CI Integration
 
@@ -501,7 +501,7 @@ Add a GitHub Actions workflow to verify the frontend build:
 ### Phase 1: Skeleton (Panel + Card Infrastructure)
 - Add `frontend/` source scaffold (Lit + Rollup + TypeScript, two entry points)
 - Add `panel.py` with panel registration/unregistration helpers
-- Add `websocket.py` with `eon_next_fork/version` and `eon_next_fork/dashboard_summary` commands
+- Add `websocket.py` with `eon_next/version` and `eon_next/dashboard_summary` commands
 - Register panel in `async_setup_entry`; register card JS + Lovelace resource in `async_setup`
 - Update `manifest.json` dependencies (`http`, `frontend`, `panel_custom`, `lovelace`)
 - Serve a minimal "Hello from EON Next Fork" panel
@@ -515,7 +515,7 @@ Add a GitHub Actions workflow to verify the frontend build:
 - Wrap them as standalone `eon-next-fork-consumption-card` and `eon-next-fork-cost-card` Lovelace cards
 - Add `setConfig()`, card picker metadata, and basic config editor for each card
 - Build `meter-view` component + `eon-next-fork-meter-card`
-- Implement `eon_next_fork/consumption_history` and `eon_next_fork/cost_history` WebSocket commands
+- Implement `eon_next/consumption_history` and `eon_next/cost_history` WebSocket commands
 - Add daily bar chart (consumption + cost)
 - Apply HA theming (light/dark, CSS variables)
 - Responsive layout for panel (desktop + mobile/narrow mode)
@@ -587,7 +587,7 @@ The embedded approach (cards shipped inside this integration) is the right choic
 **How to prepare now** (without over-engineering):
 
 1. Keep shared view components in `frontend/src/components/` decoupled from EON Next Fork–specific WebSocket commands — they should accept data via properties, not fetch it themselves
-2. Use the WebSocket API layer (`api.ts`) as the only place that knows about `eon_next_fork/*` command names
+2. Use the WebSocket API layer (`api.ts`) as the only place that knows about `eon_next/*` command names
 3. Design card configs to accept arbitrary entity IDs alongside the current auto-discovery from EON Next Fork entities
 4. When the standalone repo is eventually created, the shared components can be extracted with minimal refactoring, and this integration's cards can become thin wrappers that auto-configure entity IDs from the EON Next Fork config entry
 
@@ -640,3 +640,4 @@ This is not planned work — just a guiding principle for how we structure the f
 - [Lunar Phase Integration](https://github.com/ngocjohn/lunar-phase)
 - [Community Guide: Embedded Lovelace Card in an Integration](https://community.home-assistant.io/t/developer-guide-embedded-lovelace-card-in-a-home-assistant-integration/974909)
 - [HA Developer Docs: Custom Card](https://developers.home-assistant.io/docs/frontend/custom-ui/custom-card/)
+

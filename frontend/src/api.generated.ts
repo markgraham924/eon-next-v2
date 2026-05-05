@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------
 // THIS FILE IS AUTO-GENERATED — DO NOT EDIT BY HAND
 //
-// Source of truth: custom_components/eon_next_fork/schemas.py
+// Source of truth: custom_components/eon_next/schemas.py
 // Regenerate:      python scripts/generate_ts_api.py
 // ---------------------------------------------------------------
 
@@ -80,9 +80,9 @@ export interface EvScheduleResponse {
 
 // --- WebSocket command constants ---
 
-export const WS_VERSION = 'eon_next_fork/version' as const
-export const WS_DASHBOARD_SUMMARY = 'eon_next_fork/dashboard_summary' as const
-export const WS_BACKFILL_STATUS = 'eon_next_fork/backfill_status' as const
+export const WS_VERSION = 'eon_next/version' as const
+export const WS_DASHBOARD_SUMMARY = 'eon_next/dashboard_summary' as const
+export const WS_BACKFILL_STATUS = 'eon_next/backfill_status' as const
 
 // --- Typed API functions ---
 
@@ -101,3 +101,4 @@ export async function getBackfillStatus(
 ): Promise<BackfillStatusResponse> {
   return hass.callWS<BackfillStatusResponse>({ type: WS_BACKFILL_STATUS })
 }
+

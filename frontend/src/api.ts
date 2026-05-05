@@ -5,7 +5,7 @@
  * Parameterized commands (those accepting request arguments) have their
  * response interfaces generated but require hand-written wrapper functions.
  *
- * Source of truth: custom_components/eon_next_fork/schemas.py
+ * Source of truth: custom_components/eon_next/schemas.py
  * Regenerate:      python scripts/generate_ts_api.py
  */
 export {
@@ -37,7 +37,7 @@ export async function getConsumptionHistory(
   days = 7
 ): Promise<ConsumptionHistoryResponse> {
   return hass.callWS<ConsumptionHistoryResponse>({
-    type: 'eon_next_fork/consumption_history',
+    type: 'eon_next/consumption_history',
     meter_serial: meterSerial,
     days
   })
@@ -50,7 +50,8 @@ export async function getEvSchedule(
   deviceId: string
 ): Promise<EvScheduleResponse> {
   return hass.callWS<EvScheduleResponse>({
-    type: 'eon_next_fork/ev_schedule',
+    type: 'eon_next/ev_schedule',
     device_id: deviceId
   })
 }
+

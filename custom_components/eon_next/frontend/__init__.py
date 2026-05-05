@@ -36,7 +36,7 @@ from .statistics import statistic_id_for_meter
 _LOGGER = logging.getLogger(__name__)
 
 WS_CONSUMPTION_HISTORY_SCHEMA = {
-    vol.Required("type"): "eon_next_fork/consumption_history",
+    vol.Required("type"): "eon_next/consumption_history",
     vol.Required("meter_serial"): str,
     vol.Optional("days", default=7): vol.All(int, vol.Range(min=1, max=365)),
 }
@@ -52,7 +52,7 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
 
 
 @websocket_api.websocket_command(  # pyright: ignore[reportPrivateImportUsage]
-    {vol.Required("type"): "eon_next_fork/version"}
+    {vol.Required("type"): "eon_next/version"}
 )
 @callback
 def ws_version(
@@ -68,7 +68,7 @@ def ws_version(
 
 
 @websocket_api.websocket_command(  # pyright: ignore[reportPrivateImportUsage]
-    {vol.Required("type"): "eon_next_fork/dashboard_summary"}
+    {vol.Required("type"): "eon_next/dashboard_summary"}
 )
 @websocket_api.async_response  # pyright: ignore[reportPrivateImportUsage]
 async def ws_dashboard_summary(
@@ -369,7 +369,7 @@ def _interval_to_local_date(interval: Any) -> str | None:
 
 @websocket_api.websocket_command(  # pyright: ignore[reportPrivateImportUsage]
     {
-        vol.Required("type"): "eon_next_fork/ev_schedule",
+        vol.Required("type"): "eon_next/ev_schedule",
         vol.Required("device_id"): str,
     }
 )
@@ -439,7 +439,7 @@ def ws_ev_schedule(
 
 
 @websocket_api.websocket_command(  # pyright: ignore[reportPrivateImportUsage]
-    {vol.Required("type"): "eon_next_fork/backfill_status"}
+    {vol.Required("type"): "eon_next/backfill_status"}
 )
 @callback
 def ws_backfill_status(
@@ -515,3 +515,4 @@ def ws_backfill_status(
             )
         ),
     )
+

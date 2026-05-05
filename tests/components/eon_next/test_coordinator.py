@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 import pytest
 
-from custom_components.eon_next_fork.coordinator import EonNextCoordinator
+from custom_components.eon_next.coordinator import EonNextCoordinator
 
 # Fixed reference time: 2025-06-15 14:00 UTC.  All tests derive
 # "yesterday" / "today" from this constant so they never become flaky
@@ -312,3 +312,4 @@ class TestPreviousDayCostComputation:
         cost = round(yesterday_kwh * unit_rate + standing_charge, 4)
         # 24.0 * 0.22 + 0.53 = 5.81
         assert cost == pytest.approx(5.81)
+

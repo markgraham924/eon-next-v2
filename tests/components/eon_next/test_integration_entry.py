@@ -12,9 +12,9 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-import custom_components.eon_next_fork as integration
-from custom_components.eon_next_fork.backfill import EonNextBackfillManager
-from custom_components.eon_next_fork.const import (
+import custom_components.eon_next as integration
+from custom_components.eon_next.backfill import EonNextBackfillManager
+from custom_components.eon_next.const import (
     CONF_BACKFILL_ENABLED,
     CONF_EMAIL,
     CONF_PASSWORD,
@@ -22,8 +22,8 @@ from custom_components.eon_next_fork.const import (
     CONF_UPDATE_INTERVAL_MINUTES,
     DOMAIN,
 )
-from custom_components.eon_next_fork.coordinator import EonNextCoordinator
-from custom_components.eon_next_fork.eonnext import EonNextApiError
+from custom_components.eon_next.coordinator import EonNextCoordinator
+from custom_components.eon_next.eonnext import EonNextApiError
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.helpers import device_registry as dr
@@ -157,7 +157,7 @@ async def _ensure_recorder(hass: HomeAssistant) -> None:
 def _status_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
     registry = er.async_get(hass)
     for registry_entry in er.async_entries_for_config_entry(registry, entry.entry_id):
-        if registry_entry.unique_id == "eon_next_fork__historical_backfill_status":
+        if registry_entry.unique_id == "eon_next__historical_backfill_status":
             return registry_entry.entity_id
     raise AssertionError("Missing historical backfill status entity")
 
@@ -538,3 +538,4 @@ async def test_setup_raises_config_entry_not_ready_on_password_api_error(
     # Refresh token login returned False, so password fallback was attempted.
     assert fake_api.refresh_login_calls == ["refresh-token"]
     assert fake_api.password_login_calls == [("user@example.com", "secret")]
+

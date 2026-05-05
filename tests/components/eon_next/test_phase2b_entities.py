@@ -7,8 +7,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from custom_components.eon_next_fork.cost_tracker import EonNextCostTrackerManager
-from custom_components.eon_next_fork.sensor import (
+from custom_components.eon_next.cost_tracker import EonNextCostTrackerManager
+from custom_components.eon_next.sensor import (
     AccountBalanceSensor,
     PreviousDayConsumptionSensor,
 )
@@ -115,3 +115,4 @@ async def test_cost_tracker_updates_from_energy_state_changes(hass) -> None:
     assert state is not None
     assert state.today_consumption_kwh == pytest.approx(0.6)
     assert state.today_cost == pytest.approx(0.15)
+

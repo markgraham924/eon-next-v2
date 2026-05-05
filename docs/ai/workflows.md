@@ -25,7 +25,7 @@ npm install
 Minimum required (Python):
 
 ```bash
-python -m compileall custom_components/eon_next_fork
+python -m compileall custom_components/eon_next
 basedpyright -p pyrightconfig.json
 python3 .github/scripts/check_release_metadata.py
 ```
@@ -78,3 +78,4 @@ Notes:
 - `frontend.yml`: frontend lint, format, typecheck, and build (triggers on `frontend/` changes).
 
 Agents should not bypass these workflows; local success is necessary but not sufficient.
+

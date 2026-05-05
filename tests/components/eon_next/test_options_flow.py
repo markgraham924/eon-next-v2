@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from custom_components.eon_next_fork.config_flow import EonNextOptionsFlow
-from custom_components.eon_next_fork.const import (
+from custom_components.eon_next.config_flow import EonNextOptionsFlow
+from custom_components.eon_next.const import (
     CONF_BACKFILL_CHUNK_DAYS,
     CONF_BACKFILL_DELAY_SECONDS,
     CONF_BACKFILL_ENABLED,
@@ -57,3 +57,4 @@ async def test_options_flow_uses_defaults() -> None:
         == DEFAULT_BACKFILL_RUN_INTERVAL_MINUTES
     )
     assert defaults[CONF_BACKFILL_DELAY_SECONDS] == DEFAULT_BACKFILL_DELAY_SECONDS
+

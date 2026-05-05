@@ -27,7 +27,7 @@ jobs:
           python -m pip install -r requirements_test.txt
 
       - name: Compile integration code
-        run: python -m compileall custom_components/eon_next_fork
+        run: python -m compileall custom_components/eon_next
 
       - name: Static type check
         run: basedpyright -p pyrightconfig.json

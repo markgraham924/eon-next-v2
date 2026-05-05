@@ -7,7 +7,7 @@ Run from the repository root::
 
 The generated file contains TypeScript interfaces, WS command constants, and
 typed API wrapper functions — all derived from the dataclasses defined in
-``custom_components/eon_next_fork/schemas.py``.
+``custom_components/eon_next/schemas.py``.
 """
 
 from __future__ import annotations
@@ -136,8 +136,8 @@ def _generate_interface(cls: type) -> str:
 def _command_const_name(cmd: str) -> str:
     """Derive a TypeScript constant name from a WS command string.
 
-    ``eon_next_fork/version`` → ``WS_VERSION``
-    ``eon_next_fork/dashboard_summary`` → ``WS_DASHBOARD_SUMMARY``
+    ``eon_next/version`` → ``WS_VERSION``
+    ``eon_next/dashboard_summary`` → ``WS_DASHBOARD_SUMMARY``
     """
     suffix = cmd.split("/", 1)[1] if "/" in cmd else cmd
     return f"WS_{suffix.upper()}"
@@ -146,8 +146,8 @@ def _command_const_name(cmd: str) -> str:
 def _api_fn_name(cmd: str) -> str:
     """Derive a camelCase function name from a WS command string.
 
-    ``eon_next_fork/version`` → ``getVersion``
-    ``eon_next_fork/dashboard_summary`` → ``getDashboardSummary``
+    ``eon_next/version`` → ``getVersion``
+    ``eon_next/dashboard_summary`` → ``getDashboardSummary``
     """
     suffix = cmd.split("/", 1)[1] if "/" in cmd else cmd
     parts = suffix.split("_")
@@ -172,7 +172,7 @@ def generate() -> str:
         // ---------------------------------------------------------------
         // THIS FILE IS AUTO-GENERATED — DO NOT EDIT BY HAND
         //
-        // Source of truth: custom_components/eon_next_fork/schemas.py
+        // Source of truth: custom_components/eon_next/schemas.py
         // Regenerate:      python scripts/generate_ts_api.py
         // ---------------------------------------------------------------
 
@@ -231,3 +231,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

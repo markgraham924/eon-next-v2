@@ -8,7 +8,7 @@ const production = !watching;
 
 // In dev mode, output to dev/ so the harness can load them.
 // In production, output to the custom_components frontend dir.
-const outDir = watching ? "dev" : "../custom_components/eon_next_fork/frontend";
+const outDir = watching ? "dev" : "../custom_components/eon_next/frontend";
 
 function plugins() {
   return [
@@ -55,3 +55,4 @@ if (watching) {
 }
 
 export default bundles;
+

@@ -38,7 +38,7 @@ This project is a fork of [madmachinations/eon-next-fork-v2](https://github.com/
 * **frontend:** add visual config editors for all Lovelace cards (meter, summary, EV)
 * **frontend:** improve chart tooltips with styled backgrounds, formatted values, and dark-mode support
 * **frontend:** add ARIA roles and labels across panel, charts, and range picker for accessibility
-* **websocket:** extend `eon_next_fork/consumption_history` max day range from 30 to 365
+* **websocket:** extend `eon_next/consumption_history` max day range from 30 to 365
 
 ### Bug Fixes
 
@@ -240,3 +240,4 @@ This project is a fork of [madmachinations/eon-next-fork-v2](https://github.com/
 ### Changed
 
 - Bumped version from upstream to 1.0.0 to mark the fork's first stable release
+

@@ -2,8 +2,8 @@
  * Mock hass object for local development.
  *
  * Intercepts callWS and returns fixture data that mirrors the real
- * eon_next_fork/version, eon_next_fork/dashboard_summary, and
- * eon_next_fork/consumption_history responses.
+ * eon_next/version, eon_next/dashboard_summary, and
+ * eon_next/consumption_history responses.
  */
 
 // ---------------------------------------------------------------------------
@@ -102,11 +102,11 @@ function createMockHass() {
       }
 
       switch (msg.type) {
-        case 'eon_next_fork/version':
+        case 'eon_next/version':
           return FIXTURES.version
-        case 'eon_next_fork/dashboard_summary':
+        case 'eon_next/dashboard_summary':
           return simulateEmpty ? FIXTURES.empty : FIXTURES.summary
-        case 'eon_next_fork/consumption_history': {
+        case 'eon_next/consumption_history': {
           if (simulateEmpty) return { entries: [] }
           const serial = msg.meter_serial
           return FIXTURES.consumptionHistory[serial] || { entries: [] }
@@ -208,3 +208,4 @@ document.getElementById('btn-reset')?.addEventListener('click', () => {
   simulateEmpty = false
   inject()
 })
+

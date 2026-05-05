@@ -14,9 +14,9 @@ import pytest
 import voluptuous as vol
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-import custom_components.eon_next_fork as integration
-from custom_components.eon_next_fork.backfill import EonNextBackfillManager
-from custom_components.eon_next_fork.const import (
+import custom_components.eon_next as integration
+from custom_components.eon_next.backfill import EonNextBackfillManager
+from custom_components.eon_next.const import (
     CONF_BACKFILL_ENABLED,
     CONF_EMAIL,
     CONF_PASSWORD,
@@ -26,8 +26,8 @@ from custom_components.eon_next_fork.const import (
     DOMAIN,
     INTEGRATION_VERSION,
 )
-from custom_components.eon_next_fork.coordinator import EonNextCoordinator
-from custom_components.eon_next_fork.schemas import (
+from custom_components.eon_next.coordinator import EonNextCoordinator
+from custom_components.eon_next.schemas import (
     ConsumptionHistoryResponse,
     EvScheduleResponse,
     EvScheduleSlot,
@@ -197,7 +197,7 @@ class TestIntegrationSetup:
         """WebSocket commands should only be registered once per Home Assistant."""
         mock_setup_websocket = MagicMock()
         monkeypatch.setattr(
-            "custom_components.eon_next_fork.websocket.async_setup_websocket",
+            "custom_components.eon_next.websocket.async_setup_websocket",
             mock_setup_websocket,
         )
         monkeypatch.setattr(integration.os.path, "isfile", lambda _: False)
@@ -212,7 +212,7 @@ class TestIntegrationSetup:
 
 
 class TestWsVersion:
-    """Tests for the eon_next_fork/version WebSocket handler."""
+    """Tests for the eon_next/version WebSocket handler."""
 
     @pytest.mark.asyncio
     async def test_ws_version_returns_integration_version(
@@ -228,10 +228,10 @@ class TestWsVersion:
 
         await _setup_entry(hass, entry)
 
-        from custom_components.eon_next_fork.websocket import ws_version
+        from custom_components.eon_next.websocket import ws_version
 
         mock_connection = MagicMock()
-        ws_version(hass, mock_connection, {"id": 1, "type": "eon_next_fork/version"})
+        ws_version(hass, mock_connection, {"id": 1, "type": "eon_next/version"})
 
         mock_connection.send_result.assert_called_once_with(
             1,
@@ -240,7 +240,7 @@ class TestWsVersion:
 
 
 class TestWsDashboardSummary:
-    """Tests for the eon_next_fork/dashboard_summary WebSocket handler."""
+    """Tests for the eon_next/dashboard_summary WebSocket handler."""
 
     @pytest.mark.asyncio
     async def test_ws_dashboard_summary_returns_meters(
@@ -260,11 +260,11 @@ class TestWsDashboardSummary:
         coordinator = entry.runtime_data.coordinator
         coordinator.async_set_updated_data(_electricity_meter_data())
 
-        from custom_components.eon_next_fork.websocket import ws_dashboard_summary
+        from custom_components.eon_next.websocket import ws_dashboard_summary
 
         mock_connection = MagicMock()
         ws_dashboard_summary(
-            hass, mock_connection, {"id": 2, "type": "eon_next_fork/dashboard_summary"}
+            hass, mock_connection, {"id": 2, "type": "eon_next/dashboard_summary"}
         )
         await hass.async_block_till_done()
 
@@ -289,11 +289,11 @@ class TestWsDashboardSummary:
 
         await _setup_entry(hass, entry)
 
-        from custom_components.eon_next_fork.websocket import ws_dashboard_summary
+        from custom_components.eon_next.websocket import ws_dashboard_summary
 
         mock_connection = MagicMock()
         ws_dashboard_summary(
-            hass, mock_connection, {"id": 3, "type": "eon_next_fork/dashboard_summary"}
+            hass, mock_connection, {"id": 3, "type": "eon_next/dashboard_summary"}
         )
         await hass.async_block_till_done()
 
@@ -303,16 +303,16 @@ class TestWsDashboardSummary:
 
 
 class TestWsConsumptionHistory:
-    """Tests for the eon_next_fork/consumption_history WebSocket handler."""
+    """Tests for the eon_next/consumption_history WebSocket handler."""
 
     def test_schema_allows_365_days_and_rejects_366(self) -> None:
         """Validation should accept new upper bound and reject overflow."""
-        from custom_components.eon_next_fork.websocket import WS_CONSUMPTION_HISTORY_SCHEMA
+        from custom_components.eon_next.websocket import WS_CONSUMPTION_HISTORY_SCHEMA
 
         schema = vol.Schema(WS_CONSUMPTION_HISTORY_SCHEMA)
         validated = schema(
             {
-                "type": "eon_next_fork/consumption_history",
+                "type": "eon_next/consumption_history",
                 "meter_serial": "E123",
                 "days": 365,
             }
@@ -322,7 +322,7 @@ class TestWsConsumptionHistory:
         with pytest.raises(vol.Invalid):
             schema(
                 {
-                    "type": "eon_next_fork/consumption_history",
+                    "type": "eon_next/consumption_history",
                     "meter_serial": "E123",
                     "days": 366,
                 }
@@ -343,7 +343,7 @@ class TestWsConsumptionHistory:
 
         await _setup_entry(hass, entry)
 
-        from custom_components.eon_next_fork.websocket import ws_consumption_history
+        from custom_components.eon_next.websocket import ws_consumption_history
 
         mock_connection = MagicMock()
         ws_consumption_history(
@@ -351,7 +351,7 @@ class TestWsConsumptionHistory:
             mock_connection,
             {
                 "id": 10,
-                "type": "eon_next_fork/consumption_history",
+                "type": "eon_next/consumption_history",
                 "meter_serial": "UNKNOWN-SERIAL",
                 "days": 7,
             },
@@ -394,7 +394,7 @@ class TestWsConsumptionHistory:
             ),
         )
 
-        from custom_components.eon_next_fork.websocket import ws_consumption_history
+        from custom_components.eon_next.websocket import ws_consumption_history
 
         mock_connection = MagicMock()
         ws_consumption_history(
@@ -402,7 +402,7 @@ class TestWsConsumptionHistory:
             mock_connection,
             {
                 "id": 11,
-                "type": "eon_next_fork/consumption_history",
+                "type": "eon_next/consumption_history",
                 "meter_serial": "E123",
                 "days": 7,
             },
@@ -445,7 +445,7 @@ class TestWsConsumptionHistory:
             ),
         )
 
-        from custom_components.eon_next_fork.websocket import ws_consumption_history
+        from custom_components.eon_next.websocket import ws_consumption_history
 
         mock_connection = MagicMock()
         ws_consumption_history(
@@ -453,7 +453,7 @@ class TestWsConsumptionHistory:
             mock_connection,
             {
                 "id": 12,
-                "type": "eon_next_fork/consumption_history",
+                "type": "eon_next/consumption_history",
                 "meter_serial": "E123",
                 "days": 7,
             },
@@ -502,7 +502,7 @@ class TestWsConsumptionHistory:
             ),
         )
 
-        from custom_components.eon_next_fork.websocket import ws_consumption_history
+        from custom_components.eon_next.websocket import ws_consumption_history
 
         mock_connection = MagicMock()
         ws_consumption_history(
@@ -510,7 +510,7 @@ class TestWsConsumptionHistory:
             mock_connection,
             {
                 "id": 13,
-                "type": "eon_next_fork/consumption_history",
+                "type": "eon_next/consumption_history",
                 "meter_serial": "E123",
                 "days": 7,
             },
@@ -561,7 +561,7 @@ class TestWsConsumptionHistory:
             ),
         )
 
-        from custom_components.eon_next_fork.websocket import ws_consumption_history
+        from custom_components.eon_next.websocket import ws_consumption_history
 
         mock_connection = MagicMock()
         ws_consumption_history(
@@ -569,7 +569,7 @@ class TestWsConsumptionHistory:
             mock_connection,
             {
                 "id": 13,
-                "type": "eon_next_fork/consumption_history",
+                "type": "eon_next/consumption_history",
                 "meter_serial": "E123",
                 "days": 7,
             },
@@ -614,7 +614,7 @@ class TestWsConsumptionHistory:
             12, 0, 0, tzinfo=datetime.timezone.utc,
         ).timestamp()
 
-        stat_id = "eon_next_fork:electricity_e123_consumption"
+        stat_id = "eon_next:electricity_e123_consumption"
         mock_stats = {
             stat_id: [
                 {"start": ts_two_days, "change": 8.123},
@@ -631,7 +631,7 @@ class TestWsConsumptionHistory:
             ),
         )
 
-        from custom_components.eon_next_fork.websocket import ws_consumption_history
+        from custom_components.eon_next.websocket import ws_consumption_history
 
         mock_connection = MagicMock()
         ws_consumption_history(
@@ -639,7 +639,7 @@ class TestWsConsumptionHistory:
             mock_connection,
             {
                 "id": 14,
-                "type": "eon_next_fork/consumption_history",
+                "type": "eon_next/consumption_history",
                 "meter_serial": "E123",
                 "days": 3,
             },
@@ -661,7 +661,7 @@ class TestWsConsumptionHistory:
 
 
 class TestWsEvSchedule:
-    """Tests for the eon_next_fork/ev_schedule WebSocket handler."""
+    """Tests for the eon_next/ev_schedule WebSocket handler."""
 
     @pytest.mark.asyncio
     async def test_ws_ev_schedule_returns_slots_for_known_device(
@@ -693,13 +693,13 @@ class TestWsEvSchedule:
             }
         )
 
-        from custom_components.eon_next_fork.websocket import ws_ev_schedule
+        from custom_components.eon_next.websocket import ws_ev_schedule
 
         mock_connection = MagicMock()
         ws_ev_schedule(
             hass,
             mock_connection,
-            {"id": 20, "type": "eon_next_fork/ev_schedule", "device_id": "device-1"},
+            {"id": 20, "type": "eon_next/ev_schedule", "device_id": "device-1"},
         )
 
         mock_connection.send_result.assert_called_once_with(
@@ -728,13 +728,13 @@ class TestWsEvSchedule:
 
         await _setup_entry(hass, entry)
 
-        from custom_components.eon_next_fork.websocket import ws_ev_schedule
+        from custom_components.eon_next.websocket import ws_ev_schedule
 
         mock_connection = MagicMock()
         ws_ev_schedule(
             hass,
             mock_connection,
-            {"id": 21, "type": "eon_next_fork/ev_schedule", "device_id": "missing-device"},
+            {"id": 21, "type": "eon_next/ev_schedule", "device_id": "missing-device"},
         )
 
         mock_connection.send_result.assert_called_once_with(
@@ -751,7 +751,7 @@ class TestWsEvSchedule:
 
 
 class TestWsBackfillStatus:
-    """Tests for the eon_next_fork/backfill_status WebSocket handler."""
+    """Tests for the eon_next/backfill_status WebSocket handler."""
 
     @pytest.mark.asyncio
     async def test_ws_backfill_status_reports_disabled_state(
@@ -767,10 +767,10 @@ class TestWsBackfillStatus:
 
         await _setup_entry(hass, entry)
 
-        from custom_components.eon_next_fork.websocket import ws_backfill_status
+        from custom_components.eon_next.websocket import ws_backfill_status
 
         mock_connection = MagicMock()
-        ws_backfill_status(hass, mock_connection, {"id": 30, "type": "eon_next_fork/backfill_status"})
+        ws_backfill_status(hass, mock_connection, {"id": 30, "type": "eon_next/backfill_status"})
 
         mock_connection.send_result.assert_called_once()
         result = mock_connection.send_result.call_args[0][1]
@@ -798,11 +798,11 @@ class TestWsBackfillStatus:
 
         await _setup_entry(hass, entry)
 
-        from custom_components.eon_next_fork.websocket import ws_backfill_status
+        from custom_components.eon_next.websocket import ws_backfill_status
 
         mock_connection = MagicMock()
         ws_backfill_status(
-            hass, mock_connection, {"id": 31, "type": "eon_next_fork/backfill_status"}
+            hass, mock_connection, {"id": 31, "type": "eon_next/backfill_status"}
         )
 
         mock_connection.send_result.assert_called_once()
@@ -835,12 +835,12 @@ class TestPanelRegistration:
 
         mock_register = AsyncMock()
         monkeypatch.setattr(
-            "custom_components.eon_next_fork.panel.async_register_panel",
+            "custom_components.eon_next.panel.async_register_panel",
             mock_register,
         )
         mock_unregister = AsyncMock()
         monkeypatch.setattr(
-            "custom_components.eon_next_fork.panel.async_unregister_panel",
+            "custom_components.eon_next.panel.async_unregister_panel",
             mock_unregister,
         )
 
@@ -862,12 +862,12 @@ class TestPanelRegistration:
 
         mock_register = AsyncMock()
         monkeypatch.setattr(
-            "custom_components.eon_next_fork.panel.async_register_panel",
+            "custom_components.eon_next.panel.async_register_panel",
             mock_register,
         )
         mock_unregister = AsyncMock()
         monkeypatch.setattr(
-            "custom_components.eon_next_fork.panel.async_unregister_panel",
+            "custom_components.eon_next.panel.async_unregister_panel",
             mock_unregister,
         )
 
@@ -891,12 +891,12 @@ class TestPanelRegistration:
 
         mock_register = AsyncMock()
         monkeypatch.setattr(
-            "custom_components.eon_next_fork.panel.async_register_panel",
+            "custom_components.eon_next.panel.async_register_panel",
             mock_register,
         )
         mock_unregister = AsyncMock()
         monkeypatch.setattr(
-            "custom_components.eon_next_fork.panel.async_unregister_panel",
+            "custom_components.eon_next.panel.async_unregister_panel",
             mock_unregister,
         )
 
@@ -994,12 +994,12 @@ class TestDefaultFrontendEnabled:
 
         mock_register = AsyncMock()
         monkeypatch.setattr(
-            "custom_components.eon_next_fork.panel.async_register_panel",
+            "custom_components.eon_next.panel.async_register_panel",
             mock_register,
         )
         mock_unregister = AsyncMock()
         monkeypatch.setattr(
-            "custom_components.eon_next_fork.panel.async_unregister_panel",
+            "custom_components.eon_next.panel.async_unregister_panel",
             mock_unregister,
         )
         mock_ensure = AsyncMock()
@@ -1053,12 +1053,12 @@ class TestReconcileFrontend:
 
         mock_unregister = AsyncMock()
         monkeypatch.setattr(
-            "custom_components.eon_next_fork.panel.async_unregister_panel",
+            "custom_components.eon_next.panel.async_unregister_panel",
             mock_unregister,
         )
         mock_register = AsyncMock()
         monkeypatch.setattr(
-            "custom_components.eon_next_fork.panel.async_register_panel",
+            "custom_components.eon_next.panel.async_register_panel",
             mock_register,
         )
 
@@ -1069,3 +1069,4 @@ class TestReconcileFrontend:
         # Panel should NOT be unregistered
         mock_unregister.assert_not_called()
         mock_register.assert_called()
+

@@ -1,6 +1,6 @@
 """Constants for the EON Next Fork integration."""
 
-DOMAIN = "eon_next_fork"
+DOMAIN = "eon_next"
 INTEGRATION_VERSION = "1.9.0"  # x-release-please-version
 
 # Authentication
@@ -39,3 +39,4 @@ DEFAULT_BACKFILL_REBUILD_STATISTICS = True
 API_BASE_URL = "https://api.eonnext-kraken.energy/v1"
 GAS_CALORIC_VALUE = 38
 GAS_VOLUME_CORRECTION = 1.02264
+

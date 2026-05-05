@@ -1,5 +1,5 @@
 {
-    "domain": "eon_next_fork",
+    "domain": "eon_next",
     "name": "EON Next Fork",
     "after_dependencies": [
         "frontend",
@@ -21,3 +21,4 @@
     "requirements": [],
     "version": "1.9.0"
 }
+

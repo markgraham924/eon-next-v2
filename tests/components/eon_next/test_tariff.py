@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from custom_components.eon_next_fork.eonnext import EonNext
+from custom_components.eon_next.eonnext import EonNext
 
 # Dynamic reference dates so tests remain valid regardless of when they run.
 _TODAY = datetime.date.today().isoformat()
@@ -351,3 +351,4 @@ async def test_async_get_tariff_data_returns_none_when_no_active_agreements() ->
     )
     result = await api.async_get_tariff_data("A-123")
     assert result is None
+

@@ -11,5 +11,6 @@ For domain roadmap and capability context, also consult:
 
 - `planning/README.md`
 - `planning/current_state.md`
-- `planning/eon_next_fork_capabilities.md`
+- `planning/eon_next_capabilities.md`
 - `planning/feature_ideas.md`
+

@@ -9,8 +9,8 @@ from unittest.mock import AsyncMock
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.eon_next_fork.const import DOMAIN
-from custom_components.eon_next_fork.services import async_register_services
+from custom_components.eon_next.const import DOMAIN
+from custom_components.eon_next.services import async_register_services
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 
@@ -124,3 +124,4 @@ async def test_reset_and_update_cost_tracker_target_entities(hass) -> None:
         blocking=True,
     )
     manager.async_set_enabled.assert_awaited_once_with("washer", False)
+

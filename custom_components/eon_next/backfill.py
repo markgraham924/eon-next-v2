@@ -98,7 +98,7 @@ class EonNextBackfillManager:
         self._task = self.entry.async_create_background_task(
             self.hass,
             self._async_run(),
-            "eon_next_fork_historical_backfill",
+            "eon_next_historical_backfill",
         )
 
     async def async_stop(self) -> None:
@@ -495,3 +495,4 @@ class EonNextBackfillManager:
 
             if await self._wait_or_stop(self._backfill_run_interval_minutes() * 60):
                 break
+

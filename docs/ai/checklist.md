@@ -11,7 +11,7 @@ Use this before opening or finalizing a PR.
 
 ## Validation
 
-- [ ] `python -m compileall custom_components/eon_next_fork` passes.
+- [ ] `python -m compileall custom_components/eon_next` passes.
 - [ ] `basedpyright -p pyrightconfig.json` passes.
 - [ ] Commit/PR title follows Conventional Commit format.
 - [ ] Relevant manual HA flow checks were run for behavior changes.
@@ -30,3 +30,4 @@ Use this before opening or finalizing a PR.
 - [ ] `CHANGELOG.md` is updated for user-visible behavior changes.
 - [ ] `DEVELOPMENT.md` reflects maintainer workflow/config reality.
 - [ ] `AGENTS.md`/`docs/ai/*` updated if project conventions changed.
+

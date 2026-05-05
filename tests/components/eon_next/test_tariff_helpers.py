@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
-from custom_components.eon_next_fork.tariff_helpers import (
+from custom_components.eon_next.tariff_helpers import (
     build_day_rates,
     get_next_rate,
     get_off_peak_metadata,
@@ -338,3 +338,4 @@ class TestEdgeCases:
             info = get_next_rate(data)
         assert info is not None
         assert info.rate == 0.15
+

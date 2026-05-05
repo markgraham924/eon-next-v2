@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from custom_components.eon_next_fork.eonnext import EonNext, EonNextApiError
+from custom_components.eon_next.eonnext import EonNext, EonNextApiError
 
 
 @pytest.mark.asyncio
@@ -67,5 +67,6 @@ async def test_password_login_propagates_api_error_and_preserves_auth() -> None:
     # Auth state must NOT have been reset.
     assert api.auth["refresh"]["token"] == "saved-refresh"
     assert api.auth["issued"] == 1000000000
+
 
 

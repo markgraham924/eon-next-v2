@@ -89,8 +89,8 @@ Gas meters add:
 ## Implemented Frontend Features
 
 - Sidebar panel (`panel_custom`) auto-registered on entry setup (toggleable via options flow, default: enabled)
-- WebSocket API commands: `eon_next_fork/version`, `eon_next_fork/dashboard_summary`, `eon_next_fork/consumption_history`
-- `eon_next_fork/consumption_history` returns daily consumption from HA recorder statistics for a given meter serial and day range (1–365)
+- WebSocket API commands: `eon_next/version`, `eon_next/dashboard_summary`, `eon_next/consumption_history`
+- `eon_next/consumption_history` returns daily consumption from HA recorder statistics for a given meter serial and day range (1–365)
 - Lovelace cards: `eon-next-fork-summary-card`, `eon-next-fork-consumption-card`, `eon-next-fork-consumption-breakdown-card`, `eon-next-fork-cost-card`, `eon-next-fork-reading-card`, `eon-next-fork-ev-card`
 - Cost breakdown card shows a doughnut pie chart of usage charges vs standing charges with day/week/month period switching
 - Cost breakdown card also shows a tracker-powered tracked-vs-untracked usage split for today, with per-tracker list
@@ -115,3 +115,4 @@ Gas meters add:
 ## Notes
 
 This document intentionally describes only currently implemented capabilities in this repository.
+

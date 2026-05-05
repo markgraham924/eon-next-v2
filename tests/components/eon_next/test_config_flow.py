@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.eon_next_fork.const import (
+from custom_components.eon_next.const import (
     CONF_EMAIL,
     CONF_PASSWORD,
     CONF_REFRESH_TOKEN,
@@ -55,7 +55,7 @@ async def test_reauth_rejects_switching_to_different_account(
     entry.add_to_hass(hass)
 
     with patch(
-        "custom_components.eon_next_fork.config_flow.EonNextConfigFlow._validate_credentials",
+        "custom_components.eon_next.config_flow.EonNextConfigFlow._validate_credentials",
         AsyncMock(return_value="new-refresh-token"),
     ):
         result = await hass.config_entries.flow.async_init(
@@ -94,7 +94,7 @@ async def test_reauth_updates_credentials_for_same_account(
     entry.add_to_hass(hass)
 
     with patch(
-        "custom_components.eon_next_fork.config_flow.EonNextConfigFlow._validate_credentials",
+        "custom_components.eon_next.config_flow.EonNextConfigFlow._validate_credentials",
         AsyncMock(return_value="updated-refresh-token"),
     ):
         result = await hass.config_entries.flow.async_init(
@@ -123,3 +123,4 @@ async def test_reauth_updates_credentials_for_same_account(
         CONF_REFRESH_TOKEN: "updated-refresh-token",
     }
     assert entry.unique_id == "user@example.com"
+

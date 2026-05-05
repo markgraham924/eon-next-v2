@@ -8,9 +8,9 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from custom_components.eon_next_fork import backfill as backfill_module
-from custom_components.eon_next_fork.backfill import EonNextBackfillManager
-from custom_components.eon_next_fork.const import (
+from custom_components.eon_next import backfill as backfill_module
+from custom_components.eon_next.backfill import EonNextBackfillManager
+from custom_components.eon_next.const import (
     CONF_BACKFILL_CHUNK_DAYS,
     CONF_BACKFILL_DELAY_SECONDS,
     CONF_BACKFILL_ENABLED,
@@ -312,3 +312,4 @@ def test_meters_progress_invalid_next_start(monkeypatch) -> None:
     prog = status["meters_progress"]["m1"]
     assert prog["days_completed"] == 0
     assert prog["days_remaining"] == 10
+

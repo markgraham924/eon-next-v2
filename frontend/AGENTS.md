@@ -8,7 +8,7 @@ For repository-wide guidance, see the root `AGENTS.md`.
 
 - **Framework**: Lit 3 (web components)
 - **Language**: TypeScript (strict mode, ES2021 target)
-- **Bundler**: Rollup (`rollup.config.mjs`) — outputs to `custom_components/eon_next_fork/frontend/`
+- **Bundler**: Rollup (`rollup.config.mjs`) — outputs to `custom_components/eon_next/frontend/`
 - **Linter**: ESLint with `typescript-eslint`, `eslint-plugin-lit`, `eslint-plugin-wc`, and `eslint-config-prettier`
 - **Formatter**: Prettier (single quotes, no semicolons, no trailing commas)
 - **Package manager**: npm (lockfile committed)
@@ -36,8 +36,8 @@ frontend/
 
 Rollup produces two bundles consumed by the integration at runtime:
 
-- `custom_components/eon_next_fork/frontend/entrypoint.js` — sidebar panel
-- `custom_components/eon_next_fork/frontend/cards.js` — Lovelace cards
+- `custom_components/eon_next/frontend/entrypoint.js` — sidebar panel
+- `custom_components/eon_next/frontend/cards.js` — Lovelace cards
 
 These are committed so that HACS installs work without a build step.
 
@@ -100,3 +100,4 @@ The `.github/workflows/frontend.yml` workflow runs on PRs and pushes to `main` w
 4. `npm run build`
 
 All four must pass before merge.
+

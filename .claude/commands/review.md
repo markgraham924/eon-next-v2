@@ -9,7 +9,7 @@ Review every changed file by running `git diff HEAD` (unstaged) and `git diff --
 Run the following and report any failures:
 
 ```bash
-python -m compileall custom_components/eon_next_fork
+python -m compileall custom_components/eon_next
 basedpyright -p pyrightconfig.json 2>&1 | grep -v reportMissingImports | grep -v reportInvalidTypeForm | grep -v reportCallIssue | grep -v reportGeneralTypeIssues
 python3 .github/scripts/check_release_metadata.py
 ```

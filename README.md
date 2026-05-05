@@ -55,7 +55,7 @@ Custom integration for E.ON Next accounts in Home Assistant.
 
 ## Manual Installation
 
-1. Copy `custom_components/eon_next_fork` into your Home Assistant `custom_components` directory.
+1. Copy `custom_components/eon_next` into your Home Assistant `custom_components` directory.
 2. Restart Home Assistant.
 3. Add the integration from **Settings -> Devices & Services**.
 
@@ -119,7 +119,7 @@ For YAML-mode dashboards, add the resource manually instead:
 
 ```yaml
 resources:
-  - url: /eon_next_fork/cards
+  - url: /eon_next/cards
     type: module
 ```
 
@@ -135,3 +135,4 @@ For local development consistency:
 
 - Node.js version is pinned in `.nvmrc` (`24.13.1`) for `nvm use`.
 - Python version is pinned in `.python-version` (`3.13`) for pyenv/asdf-compatible tooling.
+
