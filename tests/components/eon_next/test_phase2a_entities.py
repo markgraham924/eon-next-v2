@@ -15,10 +15,26 @@ import pytest
 from custom_components.eon_next_fork.binary_sensor import OffPeakBinarySensor
 from custom_components.eon_next_fork.event import CurrentDayRatesEvent
 from custom_components.eon_next_fork.sensor import (
+    CurrentRateTypeSensor,
+    ExportEarningsMonthToDateSensor,
+    ExportEarningsTodaySensor,
+    ExportEarningsYesterdaySensor,
     ExportDailyConsumptionSensor,
     ExportUnitRateSensor,
+    HighestRateTodaySensor,
+    LowestRateTodaySensor,
+    NetImportCostTodaySensor,
+    NextChargeEnergyAddedSensor,
+    NextOffPeakEndSensor,
+    NextOffPeakStartSensor,
+    NextRateChangeSensor,
     NextUnitRateSensor,
+    OffPeakWindowsTodaySensor,
+    OffPeakMinutesRemainingSensor,
+    PlannedChargingMinutesTodaySensor,
+    PlannedEnergyTodaySensor,
     PreviousUnitRateSensor,
+    SmartChargingSlotCountSensor,
 )
 
 # Dynamic reference time: today at 03:00 UTC.  All derived timestamps
@@ -164,6 +180,98 @@ class TestNextUnitRateSensor:
             val = sensor.native_value
         assert val is not None
         assert val == pytest.approx(0.25)
+
+
+class TestCurrentRateTypeSensor:
+    def test_flat_rate_returns_standard(self) -> None:
+        meter = _make_meter()
+        coord = _make_coordinator({meter.serial: _flat_meter_data()})
+        sensor = CurrentRateTypeSensor(coord, meter)
+        assert sensor.native_value == "standard"
+
+    def test_tou_returns_off_peak(self) -> None:
+        meter = _make_meter()
+        coord = _make_coordinator({meter.serial: _tou_meter_data()})
+        sensor = CurrentRateTypeSensor(coord, meter)
+        with _patch_utcnow():
+            assert sensor.native_value == "off_peak"
+
+
+class TestNextRateChangeSensor:
+    def test_flat_rate_returns_none(self) -> None:
+        meter = _make_meter()
+        coord = _make_coordinator({meter.serial: _flat_meter_data()})
+        sensor = NextRateChangeSensor(coord, meter)
+        assert sensor.native_value is None
+
+    def test_tou_returns_timestamp(self) -> None:
+        meter = _make_meter()
+        coord = _make_coordinator({meter.serial: _tou_meter_data()})
+        sensor = NextRateChangeSensor(coord, meter)
+        with _patch_utcnow():
+            value = sensor.native_value
+        assert value is not None
+        assert value.hour == 5
+
+
+class TestLowestHighestRateTodaySensors:
+    def test_flat_rate_min_max_match_current(self) -> None:
+        meter = _make_meter()
+        coord = _make_coordinator({meter.serial: _flat_meter_data()})
+        low = LowestRateTodaySensor(coord, meter)
+        high = HighestRateTodaySensor(coord, meter)
+        with _patch_utcnow(), _patch_now():
+            assert low.native_value == pytest.approx(0.2236)
+            assert high.native_value == pytest.approx(0.2236)
+
+    def test_tou_min_max_derived_from_schedule(self) -> None:
+        meter = _make_meter()
+        coord = _make_coordinator({meter.serial: _tou_meter_data()})
+        low = LowestRateTodaySensor(coord, meter)
+        high = HighestRateTodaySensor(coord, meter)
+        with _patch_utcnow(), _patch_now():
+            assert low.native_value == pytest.approx(0.07)
+            assert high.native_value == pytest.approx(0.25)
+
+
+class TestOffPeakWindowsTodaySensor:
+    def test_flat_rate_returns_zero(self) -> None:
+        meter = _make_meter()
+        coord = _make_coordinator({meter.serial: _flat_meter_data()})
+        sensor = OffPeakWindowsTodaySensor(coord, meter)
+        assert sensor.native_value == 0
+
+    def test_tou_counts_off_peak_windows(self) -> None:
+        meter = _make_meter()
+        coord = _make_coordinator({meter.serial: _tou_meter_data()})
+        sensor = OffPeakWindowsTodaySensor(coord, meter)
+        with _patch_utcnow(), _patch_now():
+            assert sensor.native_value == 1
+
+
+class TestAdditionalTariffTimingSensors:
+    def test_next_off_peak_start_none_during_current_window_only(self) -> None:
+        meter = _make_meter()
+        coord = _make_coordinator({meter.serial: _tou_meter_data()})
+        sensor = NextOffPeakStartSensor(coord, meter)
+        with _patch_utcnow(), _patch_now():
+            assert sensor.native_value is None
+
+    def test_next_off_peak_end_matches_current_window_end(self) -> None:
+        meter = _make_meter()
+        coord = _make_coordinator({meter.serial: _tou_meter_data()})
+        sensor = NextOffPeakEndSensor(coord, meter)
+        with _patch_utcnow(), _patch_now():
+            value = sensor.native_value
+        assert value is not None
+        assert value.hour == 5
+
+    def test_off_peak_minutes_remaining_positive_during_window(self) -> None:
+        meter = _make_meter()
+        coord = _make_coordinator({meter.serial: _tou_meter_data()})
+        sensor = OffPeakMinutesRemainingSensor(coord, meter)
+        with _patch_utcnow(), _patch_now():
+            assert sensor.native_value == 60
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -326,3 +434,125 @@ class TestCurrentDayRatesEvent:
         coord = _make_coordinator({meter.serial: data})
         entity = CurrentDayRatesEvent(coord, meter)
         assert entity.available is True
+
+
+class TestEvScheduleSensors:
+    def test_slot_count_reads_schedule_length(self) -> None:
+        charger = MagicMock()
+        charger.device_id = "device-1"
+        charger.serial = "EV-001"
+        coord = _make_coordinator(
+            {
+                "ev::device-1": {
+                    "schedule": [
+                        {"start": _ts(1), "end": _ts(2)},
+                        {"start": _ts(3), "end": _ts(4)},
+                    ]
+                }
+            }
+        )
+        sensor = SmartChargingSlotCountSensor(coord, charger)
+        assert sensor.native_value == 2
+
+    def test_next_energy_added_reads_first_slot(self) -> None:
+        charger = MagicMock()
+        charger.device_id = "device-1"
+        charger.serial = "EV-001"
+        coord = _make_coordinator(
+            {
+                "ev::device-1": {
+                    "schedule": [
+                        {
+                            "start": _ts(1),
+                            "end": _ts(2),
+                            "energy_added_kwh": 8.5,
+                        }
+                    ]
+                }
+            }
+        )
+        sensor = NextChargeEnergyAddedSensor(coord, charger)
+        assert sensor.native_value == pytest.approx(8.5)
+
+    def test_planned_energy_today_sums_slots(self) -> None:
+        charger = MagicMock()
+        charger.device_id = "device-1"
+        charger.serial = "EV-001"
+        coord = _make_coordinator(
+            {
+                "ev::device-1": {
+                    "schedule": [
+                        {
+                            "start": _ts(1),
+                            "end": _ts(2),
+                            "energy_added_kwh": 8.5,
+                        },
+                        {
+                            "start": _ts(3),
+                            "end": _ts(4),
+                            "energy_added_kwh": 4.0,
+                        },
+                    ]
+                }
+            }
+        )
+        sensor = PlannedEnergyTodaySensor(coord, charger)
+        with _patch_now(_REF_UTC):
+            assert sensor.native_value == pytest.approx(12.5)
+
+    def test_planned_minutes_today_sums_slot_durations(self) -> None:
+        charger = MagicMock()
+        charger.device_id = "device-1"
+        charger.serial = "EV-001"
+        coord = _make_coordinator(
+            {
+                "ev::device-1": {
+                    "schedule": [
+                        {"start": _ts(1), "end": _ts(2)},
+                        {"start": _ts(3), "end": _ts(5)},
+                    ]
+                }
+            }
+        )
+        sensor = PlannedChargingMinutesTodaySensor(coord, charger)
+        with _patch_now(_REF_UTC):
+            assert sensor.native_value == 180
+
+
+class TestExportEarningsSensors:
+    def test_export_earnings_today_derived(self) -> None:
+        meter = _make_meter("EXP001")
+        data = {"daily_consumption": 3.2, "unit_rate": 0.055}
+        coord = _make_coordinator({meter.serial: data})
+        sensor = ExportEarningsTodaySensor(coord, meter)
+        assert sensor.native_value == pytest.approx(0.176)
+
+    def test_export_earnings_yesterday_derived(self) -> None:
+        meter = _make_meter("EXP001")
+        data = {"previous_day_consumption": 5.0, "unit_rate": 0.055}
+        coord = _make_coordinator({meter.serial: data})
+        sensor = ExportEarningsYesterdaySensor(coord, meter)
+        assert sensor.native_value == pytest.approx(0.275)
+
+
+class TestNetImportCostTodaySensor:
+    def test_net_import_cost_today_subtracts_export_credit(self) -> None:
+        coord = _make_coordinator(
+            {
+                "import-1": {
+                    "type": "electricity",
+                    "daily_consumption": 10.0,
+                    "unit_rate": 0.25,
+                    "standing_charge": 0.5,
+                    "is_export": False,
+                },
+                "export-1": {
+                    "type": "electricity",
+                    "daily_consumption": 4.0,
+                    "unit_rate": 0.05,
+                    "is_export": True,
+                },
+            }
+        )
+        sensor = NetImportCostTodaySensor(coord)
+        assert sensor.native_value == pytest.approx(2.8)

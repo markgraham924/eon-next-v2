@@ -10,7 +10,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .device import get_entry_device_info, meter_label
+from .device import get_meter_device_info, meter_label
 from .models import EonNextConfigEntry
 from .tariff_helpers import build_day_rates
 
@@ -23,12 +23,16 @@ async def async_setup_entry(
     """Set up event entities from a config entry."""
     coordinator = config_entry.runtime_data.coordinator
     api = config_entry.runtime_data.api
-    device_info = get_entry_device_info(config_entry)
-
     entities: list[EventEntity] = []
     for account in api.accounts:
         for meter in account.meters:
-            entities.append(CurrentDayRatesEvent(coordinator, meter, device_info))
+            entities.append(
+                CurrentDayRatesEvent(
+                    coordinator,
+                    meter,
+                    get_meter_device_info(config_entry, meter),
+                )
+            )
 
     async_add_entities(entities)
 

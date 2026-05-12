@@ -21,10 +21,24 @@ from homeassistant.util import dt as dt_util
 
 from .coordinator import ev_data_key
 from .cost_tracker import EonNextCostTrackerManager
-from .device import account_label, charger_label, get_entry_device_info, meter_label
+from .device import (
+    account_label,
+    charger_label,
+    get_account_device_info,
+    get_charger_device_info,
+    get_diagnostics_device_info,
+    get_meter_device_info,
+    meter_label,
+)
 from .eonnext import METER_TYPE_ELECTRIC, METER_TYPE_GAS, ElectricityMeter
 from .models import EonNextConfigEntry
-from .tariff_helpers import RateInfo, get_next_rate, get_previous_rate
+from .tariff_helpers import (
+    RateInfo,
+    build_day_rates,
+    get_next_rate,
+    get_off_peak_metadata,
+    get_previous_rate,
+)
 
 
 def _parse_timestamp(value: Any) -> datetime | None:
@@ -32,6 +46,101 @@ def _parse_timestamp(value: Any) -> datetime | None:
     if not isinstance(value, str):
         return None
     return dt_util.parse_datetime(value)
+
+
+def _day_rates(data: dict[str, Any] | None) -> list[dict[str, Any]]:
+    """Return today's derived rate windows for a meter."""
+    if not data:
+        return []
+    return build_day_rates(data)
+
+
+def _upcoming_off_peak_windows(
+    data: dict[str, Any] | None,
+) -> list[dict[str, Any]]:
+    """Return today's off-peak windows that haven't fully ended yet."""
+    now = dt_util.now()
+    windows: list[dict[str, Any]] = []
+    for rate in _day_rates(data):
+        if not rate.get("is_off_peak"):
+            continue
+        end = _parse_timestamp(rate.get("end"))
+        if end is None or end <= now:
+            continue
+        windows.append(rate)
+    return windows
+
+
+def _current_off_peak_window(
+    data: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    """Return the current off-peak window, if one is active."""
+    now = dt_util.now()
+    for rate in _upcoming_off_peak_windows(data):
+        start = _parse_timestamp(rate.get("start"))
+        end = _parse_timestamp(rate.get("end"))
+        if start is None or end is None:
+            continue
+        if start <= now < end:
+            return rate
+    return None
+
+
+async def _month_to_date_consumption_from_statistics(
+    hass: HomeAssistant,
+    meter_serial: str,
+    meter_type: str,
+) -> float | None:
+    """Return month-to-date consumption total from recorder statistics."""
+    from .statistics import statistic_id_for_meter
+
+    stat_id = statistic_id_for_meter(meter_serial, meter_type)
+    if stat_id is None:
+        return None
+
+    local_now = dt_util.now()
+    start_of_month = local_now.replace(
+        day=1, hour=0, minute=0, second=0, microsecond=0
+    )
+    end_of_today = local_now.replace(
+        hour=23, minute=59, second=59, microsecond=999999
+    )
+
+    try:
+        from homeassistant.components.recorder.statistics import (
+            statistics_during_period,
+        )
+        from homeassistant.helpers.recorder import get_instance
+
+        result = await get_instance(hass).async_add_executor_job(
+            statistics_during_period,
+            hass,
+            start_of_month,
+            end_of_today,
+            {stat_id},
+            "day",
+            None,
+            {"change"},
+        )
+    except Exception:  # pylint: disable=broad-except
+        return None
+
+    total = 0.0
+    found = False
+    for stat in result.get(stat_id, []):
+        change = stat.get("change")
+        if change is None:
+            continue
+        try:
+            value = float(change)
+        except (TypeError, ValueError):
+            continue
+        if value < 0:
+            continue
+        total += value
+        found = True
+
+    return round(total, 3) if found else None
 
 
 async def async_setup_entry(
@@ -45,63 +154,177 @@ async def async_setup_entry(
     api = config_entry.runtime_data.api
     backfill = config_entry.runtime_data.backfill
     cost_trackers = config_entry.runtime_data.cost_trackers
-    device_info = get_entry_device_info(config_entry)
-
     entities: list[SensorEntity] = []
     for account in api.accounts:
         account_number = getattr(account, "account_number", None)
         if account_number:
             entities.append(
-                AccountBalanceSensor(coordinator, account_number, device_info)
+                AccountBalanceSensor(
+                    coordinator,
+                    account_number,
+                    get_account_device_info(config_entry, account_number),
+                )
             )
 
         for meter in account.meters:
-            entities.append(LatestReadingDateSensor(coordinator, meter, device_info))
+            meter_device_info = get_meter_device_info(config_entry, meter)
+            entities.append(
+                LatestReadingDateSensor(coordinator, meter, meter_device_info)
+            )
 
             if meter.type == METER_TYPE_ELECTRIC:
                 entities.append(
-                    LatestElectricKwhSensor(coordinator, meter, device_info)
+                    LatestElectricKwhSensor(coordinator, meter, meter_device_info)
                 )
 
             if meter.type == METER_TYPE_GAS:
                 entities.append(
-                    LatestGasCubicMetersSensor(coordinator, meter, device_info)
+                    LatestGasCubicMetersSensor(
+                        coordinator, meter, meter_device_info
+                    )
                 )
-                entities.append(LatestGasKwhSensor(coordinator, meter, device_info))
+                entities.append(
+                    LatestGasKwhSensor(coordinator, meter, meter_device_info)
+                )
 
-            entities.append(DailyConsumptionSensor(coordinator, meter, device_info))
-            entities.append(StandingChargeSensor(coordinator, meter, device_info))
-            entities.append(PreviousDayCostSensor(coordinator, meter, device_info))
-            entities.append(CurrentUnitRateSensor(coordinator, meter, device_info))
-            entities.append(CurrentTariffSensor(coordinator, meter, device_info))
-            entities.append(PreviousUnitRateSensor(coordinator, meter, device_info))
-            entities.append(NextUnitRateSensor(coordinator, meter, device_info))
             entities.append(
-                PreviousDayConsumptionSensor(coordinator, meter, device_info)
+                DailyConsumptionSensor(coordinator, meter, meter_device_info)
+            )
+            entities.append(StandingChargeSensor(coordinator, meter, meter_device_info))
+            entities.append(
+                PreviousDayCostSensor(coordinator, meter, meter_device_info)
+            )
+            entities.append(
+                CurrentUnitRateSensor(coordinator, meter, meter_device_info)
+            )
+            entities.append(CurrentTariffSensor(coordinator, meter, meter_device_info))
+            entities.append(
+                CurrentRateTypeSensor(coordinator, meter, meter_device_info)
+            )
+            entities.append(
+                NextRateChangeSensor(coordinator, meter, meter_device_info)
+            )
+            entities.append(
+                LowestRateTodaySensor(coordinator, meter, meter_device_info)
+            )
+            entities.append(
+                HighestRateTodaySensor(coordinator, meter, meter_device_info)
+            )
+            entities.append(
+                OffPeakWindowsTodaySensor(coordinator, meter, meter_device_info)
+            )
+            entities.append(
+                NextOffPeakStartSensor(coordinator, meter, meter_device_info)
+            )
+            entities.append(
+                NextOffPeakEndSensor(coordinator, meter, meter_device_info)
+            )
+            entities.append(
+                OffPeakMinutesRemainingSensor(
+                    coordinator, meter, meter_device_info
+                )
+            )
+            entities.append(
+                PreviousUnitRateSensor(coordinator, meter, meter_device_info)
+            )
+            entities.append(NextUnitRateSensor(coordinator, meter, meter_device_info))
+            entities.append(
+                PreviousDayConsumptionSensor(coordinator, meter, meter_device_info)
             )
 
             if isinstance(meter, ElectricityMeter) and meter.is_export:
-                entities.append(ExportUnitRateSensor(coordinator, meter, device_info))
                 entities.append(
-                    ExportDailyConsumptionSensor(coordinator, meter, device_info)
+                    ExportUnitRateSensor(coordinator, meter, meter_device_info)
+                )
+                entities.append(
+                    ExportDailyConsumptionSensor(
+                        coordinator, meter, meter_device_info
+                    )
+                )
+                entities.append(
+                    ExportEarningsTodaySensor(
+                        coordinator, meter, meter_device_info
+                    )
+                )
+                entities.append(
+                    ExportEarningsYesterdaySensor(
+                        coordinator, meter, meter_device_info
+                    )
+                )
+                entities.append(
+                    ExportEarningsMonthToDateSensor(
+                        coordinator, meter, meter_device_info
+                    )
                 )
 
         for charger in account.ev_chargers:
+            charger_device_info = get_charger_device_info(config_entry, charger)
             entities.append(
-                SmartChargingScheduleSensor(coordinator, charger, device_info)
+                SmartChargingScheduleSensor(
+                    coordinator, charger, charger_device_info
+                )
             )
-            entities.append(NextChargeStartSensor(coordinator, charger, device_info))
-            entities.append(NextChargeEndSensor(coordinator, charger, device_info))
             entities.append(
-                NextChargeStartSlot2Sensor(coordinator, charger, device_info)
+                SmartChargingSlotCountSensor(
+                    coordinator, charger, charger_device_info
+                )
             )
-            entities.append(NextChargeEndSlot2Sensor(coordinator, charger, device_info))
+            entities.append(
+                NextChargeEnergyAddedSensor(
+                    coordinator, charger, charger_device_info
+                )
+            )
+            entities.append(
+                PlannedEnergyTodaySensor(
+                    coordinator, charger, charger_device_info
+                )
+            )
+            entities.append(
+                PlannedChargingMinutesTodaySensor(
+                    coordinator, charger, charger_device_info
+                )
+            )
+            entities.append(
+                NextChargeStartSensor(coordinator, charger, charger_device_info)
+            )
+            entities.append(
+                NextChargeEndSensor(coordinator, charger, charger_device_info)
+            )
+            entities.append(
+                NextChargeStartSlot2Sensor(
+                    coordinator, charger, charger_device_info
+                )
+            )
+            entities.append(
+                NextChargeEndSlot2Sensor(coordinator, charger, charger_device_info)
+            )
 
-    entities.append(HistoricalBackfillStatusSensor(coordinator, backfill, device_info))
+    diagnostics_device_info = get_diagnostics_device_info(config_entry)
+    entities.append(
+        HistoricalBackfillStatusSensor(
+            coordinator, backfill, diagnostics_device_info
+        )
+    )
+    entities.append(NetImportCostTodaySensor(coordinator, diagnostics_device_info))
 
     tracker_entity_ids = cost_trackers.list_tracker_ids()
     for tracker_id in tracker_entity_ids:
-        entities.append(CostTrackerSensor(cost_trackers, tracker_id, device_info))
+        tracker_config = cost_trackers.get_config(tracker_id)
+        tracker_device_info = diagnostics_device_info
+        if tracker_config is not None:
+            for account in api.accounts:
+                for meter in account.meters:
+                    if meter.serial == tracker_config.meter_serial:
+                        tracker_device_info = get_meter_device_info(
+                            config_entry, meter
+                        )
+                        break
+                else:
+                    continue
+                break
+        entities.append(
+            CostTrackerSensor(cost_trackers, tracker_id, tracker_device_info)
+        )
 
     async_add_entities(entities)
 
@@ -112,7 +335,22 @@ async def async_setup_entry(
         if tracker_id in known_tracker_ids:
             return
         known_tracker_ids.add(tracker_id)
-        async_add_entities([CostTrackerSensor(cost_trackers, tracker_id, device_info)])
+        tracker_config = cost_trackers.get_config(tracker_id)
+        tracker_device_info = diagnostics_device_info
+        if tracker_config is not None:
+            for account in api.accounts:
+                for meter in account.meters:
+                    if meter.serial == tracker_config.meter_serial:
+                        tracker_device_info = get_meter_device_info(
+                            config_entry, meter
+                        )
+                        break
+                else:
+                    continue
+                break
+        async_add_entities(
+            [CostTrackerSensor(cost_trackers, tracker_id, tracker_device_info)]
+        )
 
     config_entry.async_on_unload(
         cost_trackers.async_add_list_listener(_handle_tracker_added)
@@ -418,6 +656,179 @@ class CurrentTariffSensor(EonNextSensorBase):
         return attrs
 
 
+class CurrentRateTypeSensor(EonNextSensorBase):
+    """Current tariff period type for the meter."""
+
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Current Rate Type"
+        self._attr_icon = "mdi:timeline-clock-outline"
+        self._attr_unique_id = f"{meter.serial}__current_rate_type"
+
+    @property
+    def native_value(self):
+        data = self._meter_data
+        if not data:
+            return None
+        if not data.get("tariff_is_tou", False):
+            return "standard"
+        return get_off_peak_metadata(data).get("current_rate_name")
+
+
+class NextRateChangeSensor(EonNextSensorBase):
+    """Timestamp of the next tariff period transition."""
+
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Next Rate Change"
+        self._attr_device_class = SensorDeviceClass.TIMESTAMP
+        self._attr_icon = "mdi:clock-alert-outline"
+        self._attr_unique_id = f"{meter.serial}__next_rate_change"
+
+    @property
+    def native_value(self):
+        data = self._meter_data
+        if not data or not data.get("tariff_is_tou", False):
+            return None
+        return _parse_timestamp(get_off_peak_metadata(data).get("next_transition"))
+
+
+class LowestRateTodaySensor(EonNextSensorBase):
+    """Lowest published rate in today's derived rate schedule."""
+
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Lowest Rate Today"
+        self._attr_device_class = SensorDeviceClass.MONETARY
+        self._attr_native_unit_of_measurement = f"GBP/{UnitOfEnergy.KILO_WATT_HOUR}"
+        self._attr_icon = "mdi:arrow-down-bold-circle-outline"
+        self._attr_unique_id = f"{meter.serial}__lowest_rate_today"
+        self._attr_suggested_display_precision = 4
+
+    @property
+    def native_value(self):
+        rates = _day_rates(self._meter_data)
+        if not rates:
+            return None
+        return min(float(rate["rate"]) for rate in rates)
+
+
+class HighestRateTodaySensor(EonNextSensorBase):
+    """Highest published rate in today's derived rate schedule."""
+
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Highest Rate Today"
+        self._attr_device_class = SensorDeviceClass.MONETARY
+        self._attr_native_unit_of_measurement = f"GBP/{UnitOfEnergy.KILO_WATT_HOUR}"
+        self._attr_icon = "mdi:arrow-up-bold-circle-outline"
+        self._attr_unique_id = f"{meter.serial}__highest_rate_today"
+        self._attr_suggested_display_precision = 4
+
+    @property
+    def native_value(self):
+        rates = _day_rates(self._meter_data)
+        if not rates:
+            return None
+        return max(float(rate["rate"]) for rate in rates)
+
+
+class OffPeakWindowsTodaySensor(EonNextSensorBase):
+    """Count of today's off-peak windows for time-of-use tariffs."""
+
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Off Peak Windows Today"
+        self._attr_icon = "mdi:clock-fast"
+        self._attr_unique_id = f"{meter.serial}__off_peak_windows_today"
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    @property
+    def native_value(self):
+        data = self._meter_data
+        if not data:
+            return None
+        if not data.get("tariff_is_tou", False):
+            return 0
+        return sum(1 for rate in _day_rates(data) if rate.get("is_off_peak"))
+
+
+class NextOffPeakStartSensor(EonNextSensorBase):
+    """Start time of the next off-peak window."""
+
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Next Off Peak Start"
+        self._attr_device_class = SensorDeviceClass.TIMESTAMP
+        self._attr_icon = "mdi:clock-start"
+        self._attr_unique_id = f"{meter.serial}__next_off_peak_start"
+
+    @property
+    def native_value(self):
+        data = self._meter_data
+        if not data or not data.get("tariff_is_tou", False):
+            return None
+        now = dt_util.now()
+        current = _current_off_peak_window(data)
+        windows = _upcoming_off_peak_windows(data)
+        for window in windows:
+            start = _parse_timestamp(window.get("start"))
+            end = _parse_timestamp(window.get("end"))
+            if start is None or end is None:
+                continue
+            if current is not None and start <= now < end:
+                continue
+            if start > now:
+                return start
+        return None
+
+
+class NextOffPeakEndSensor(EonNextSensorBase):
+    """End time of the active or next off-peak window."""
+
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Next Off Peak End"
+        self._attr_device_class = SensorDeviceClass.TIMESTAMP
+        self._attr_icon = "mdi:clock-end"
+        self._attr_unique_id = f"{meter.serial}__next_off_peak_end"
+
+    @property
+    def native_value(self):
+        data = self._meter_data
+        if not data or not data.get("tariff_is_tou", False):
+            return None
+        current = _current_off_peak_window(data)
+        if current is not None:
+            return _parse_timestamp(current.get("end"))
+        windows = _upcoming_off_peak_windows(data)
+        if not windows:
+            return None
+        return _parse_timestamp(windows[0].get("end"))
+
+
+class OffPeakMinutesRemainingSensor(EonNextSensorBase):
+    """Minutes remaining in the current off-peak window."""
+
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Off Peak Minutes Remaining"
+        self._attr_icon = "mdi:timer-sand"
+        self._attr_unique_id = f"{meter.serial}__off_peak_minutes_remaining"
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    @property
+    def native_value(self):
+        current = _current_off_peak_window(self._meter_data)
+        if current is None:
+            return 0
+        end = _parse_timestamp(current.get("end"))
+        if end is None:
+            return 0
+        delta = end - dt_util.now()
+        return max(int(delta.total_seconds() // 60), 0)
+
+
 class AccountBalanceSensor(EonNextSensorBase):
     """Account balance in pounds."""
 
@@ -449,6 +860,80 @@ class AccountBalanceSensor(EonNextSensorBase):
         }
 
 
+class NetImportCostTodaySensor(CoordinatorEntity, SensorEntity):
+    """Today's net import cost across all loaded meters."""
+
+    def __init__(self, coordinator, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator)
+        self._attr_name = "Net Import Cost Today"
+        self._attr_device_class = SensorDeviceClass.MONETARY
+        self._attr_native_unit_of_measurement = "GBP"
+        self._attr_icon = "mdi:scale-balance"
+        self._attr_unique_id = "eon_next_fork__net_import_cost_today"
+        self._attr_has_entity_name = True
+        if device_info is not None:
+            self._attr_device_info = device_info
+
+    @property
+    def native_value(self):
+        if not self.coordinator.data:
+            return None
+        import_total = 0.0
+        export_total = 0.0
+        found = False
+        for data in self.coordinator.data.values():
+            if data.get("type") not in ("electricity", "gas"):
+                continue
+            consumption = data.get("daily_consumption")
+            unit_rate = data.get("unit_rate")
+            standing_charge = data.get("standing_charge")
+            if consumption is None or unit_rate is None:
+                continue
+            try:
+                usage_value = float(consumption) * float(unit_rate)
+            except (TypeError, ValueError):
+                continue
+            found = True
+            if data.get("is_export", False):
+                export_total += usage_value
+            else:
+                import_total += usage_value + (
+                    float(standing_charge) if standing_charge is not None else 0.0
+                )
+        if not found:
+            return None
+        return round(import_total - export_total, 4)
+
+    @property
+    def extra_state_attributes(self):
+        if not self.coordinator.data:
+            return {}
+        import_total = 0.0
+        export_total = 0.0
+        for data in self.coordinator.data.values():
+            if data.get("type") not in ("electricity", "gas"):
+                continue
+            consumption = data.get("daily_consumption")
+            unit_rate = data.get("unit_rate")
+            standing_charge = data.get("standing_charge")
+            if consumption is None or unit_rate is None:
+                continue
+            try:
+                usage_value = float(consumption) * float(unit_rate)
+            except (TypeError, ValueError):
+                continue
+            if data.get("is_export", False):
+                export_total += usage_value
+            else:
+                import_total += usage_value + (
+                    float(standing_charge) if standing_charge is not None else 0.0
+                )
+        return {
+            "import_cost_today": round(import_total, 4),
+            "export_credit_today": round(export_total, 4),
+        }
+
+
 class SmartChargingScheduleSensor(EonNextSensorBase):
     """Smart charging schedule status."""
 
@@ -472,7 +957,130 @@ class SmartChargingScheduleSensor(EonNextSensorBase):
     @property
     def extra_state_attributes(self):
         data = self._meter_data or {}
-        return {"schedule": data.get("schedule", [])}
+        schedule = data.get("schedule", [])
+        attrs: dict[str, Any] = {
+            "schedule": schedule,
+            "slot_count": len(schedule),
+        }
+        if data.get("next_charge_start") is not None:
+            attrs["next_charge_start"] = data.get("next_charge_start")
+        if data.get("next_charge_end") is not None:
+            attrs["next_charge_end"] = data.get("next_charge_end")
+        if data.get("next_charge_start_2") is not None:
+            attrs["next_charge_start_2"] = data.get("next_charge_start_2")
+        if data.get("next_charge_end_2") is not None:
+            attrs["next_charge_end_2"] = data.get("next_charge_end_2")
+        if schedule:
+            first_slot = schedule[0]
+            if first_slot.get("type") is not None:
+                attrs["next_slot_type"] = first_slot.get("type")
+            if first_slot.get("energy_added_kwh") is not None:
+                attrs["next_slot_energy_added_kwh"] = first_slot.get(
+                    "energy_added_kwh"
+                )
+        return attrs
+
+
+class SmartChargingSlotCountSensor(EonNextSensorBase):
+    """Number of currently planned smart-charging slots."""
+
+    def __init__(self, coordinator, charger, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, ev_data_key(charger.device_id), device_info)
+        self._attr_name = f"{charger_label(charger)} Slot Count"
+        self._attr_icon = "mdi:counter"
+        self._attr_unique_id = f"{charger.device_id}__smart_charging_slot_count"
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    @property
+    def native_value(self):
+        data = self._meter_data or {}
+        return len(data.get("schedule", []))
+
+
+class NextChargeEnergyAddedSensor(EonNextSensorBase):
+    """Planned energy to add in the next smart-charging slot."""
+
+    def __init__(self, coordinator, charger, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, ev_data_key(charger.device_id), device_info)
+        self._attr_name = f"{charger_label(charger)} Next Charge Energy Added"
+        self._attr_device_class = SensorDeviceClass.ENERGY
+        self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
+        self._attr_icon = "mdi:battery-arrow-up-outline"
+        self._attr_unique_id = f"{charger.device_id}__next_charge_energy_added"
+
+    @property
+    def native_value(self):
+        data = self._meter_data or {}
+        schedule = data.get("schedule", [])
+        if not schedule:
+            return None
+        energy = schedule[0].get("energy_added_kwh")
+        if energy is None:
+            return None
+        try:
+            return float(energy)
+        except (TypeError, ValueError):
+            return None
+
+
+class PlannedEnergyTodaySensor(EonNextSensorBase):
+    """Total planned smart-charging energy for today's local schedule."""
+
+    def __init__(self, coordinator, charger, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, ev_data_key(charger.device_id), device_info)
+        self._attr_name = f"{charger_label(charger)} Planned Energy Today"
+        self._attr_device_class = SensorDeviceClass.ENERGY
+        self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
+        self._attr_icon = "mdi:ev-station"
+        self._attr_unique_id = f"{charger.device_id}__planned_energy_today"
+
+    @property
+    def native_value(self):
+        data = self._meter_data or {}
+        schedule = data.get("schedule", [])
+        today = dt_util.now().date()
+        total = 0.0
+        found = False
+        for slot in schedule:
+            start = _parse_timestamp(slot.get("start"))
+            if start is None or start.date() != today:
+                continue
+            energy = slot.get("energy_added_kwh")
+            if energy is None:
+                continue
+            try:
+                total += float(energy)
+            except (TypeError, ValueError):
+                continue
+            found = True
+        return round(total, 3) if found else None
+
+
+class PlannedChargingMinutesTodaySensor(EonNextSensorBase):
+    """Total planned smart-charging minutes for today's local schedule."""
+
+    def __init__(self, coordinator, charger, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, ev_data_key(charger.device_id), device_info)
+        self._attr_name = f"{charger_label(charger)} Planned Minutes Today"
+        self._attr_icon = "mdi:timer-outline"
+        self._attr_unique_id = f"{charger.device_id}__planned_minutes_today"
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    @property
+    def native_value(self):
+        data = self._meter_data or {}
+        schedule = data.get("schedule", [])
+        today = dt_util.now().date()
+        total_minutes = 0
+        found = False
+        for slot in schedule:
+            start = _parse_timestamp(slot.get("start"))
+            end = _parse_timestamp(slot.get("end"))
+            if start is None or end is None or start.date() != today:
+                continue
+            total_minutes += max(int((end - start).total_seconds() // 60), 0)
+            found = True
+        return total_minutes if found else None
 
 
 class NextChargeStartSensor(EonNextSensorBase):
@@ -706,6 +1314,114 @@ class ExportDailyConsumptionSensor(EonNextSensorBase):
     def native_value(self):
         data = self._meter_data
         return data.get("daily_consumption") if data else None
+
+
+class ExportEarningsTodaySensor(EonNextSensorBase):
+    """Derived export earnings for today using current export rate."""
+
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Earnings Today"
+        self._attr_device_class = SensorDeviceClass.MONETARY
+        self._attr_native_unit_of_measurement = "GBP"
+        self._attr_icon = "mdi:cash-multiple"
+        self._attr_unique_id = f"{meter.serial}__export_earnings_today"
+
+    @property
+    def native_value(self):
+        data = self._meter_data or {}
+        consumption = data.get("daily_consumption")
+        unit_rate = data.get("unit_rate")
+        if consumption is None or unit_rate is None:
+            return None
+        try:
+            return round(float(consumption) * float(unit_rate), 4)
+        except (TypeError, ValueError):
+            return None
+
+
+class ExportEarningsYesterdaySensor(EonNextSensorBase):
+    """Derived export earnings for yesterday using current export rate."""
+
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._attr_name = f"{meter_label(meter)} Earnings Yesterday"
+        self._attr_device_class = SensorDeviceClass.MONETARY
+        self._attr_native_unit_of_measurement = "GBP"
+        self._attr_icon = "mdi:cash-clock"
+        self._attr_unique_id = f"{meter.serial}__export_earnings_yesterday"
+
+    @property
+    def native_value(self):
+        data = self._meter_data or {}
+        consumption = data.get("previous_day_consumption")
+        unit_rate = data.get("unit_rate")
+        if consumption is None or unit_rate is None:
+            return None
+        try:
+            return round(float(consumption) * float(unit_rate), 4)
+        except (TypeError, ValueError):
+            return None
+
+
+class ExportEarningsMonthToDateSensor(EonNextSensorBase):
+    """Derived export earnings month-to-date from recorder statistics."""
+
+    def __init__(self, coordinator, meter, device_info: DeviceInfo | None = None):
+        super().__init__(coordinator, meter.serial, device_info)
+        self._meter_type = getattr(meter, "type", "")
+        self._attr_name = f"{meter_label(meter)} Earnings Month To Date"
+        self._attr_device_class = SensorDeviceClass.MONETARY
+        self._attr_native_unit_of_measurement = "GBP"
+        self._attr_icon = "mdi:cash-check"
+        self._attr_unique_id = f"{meter.serial}__export_earnings_month_to_date"
+        self._value: float | None = None
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        self.async_on_remove(
+            self.coordinator.async_add_listener(self._schedule_refresh)
+        )
+        self._schedule_refresh()
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._schedule_refresh()
+        super()._handle_coordinator_update()
+
+    @callback
+    def _schedule_refresh(self) -> None:
+        if self.hass is not None:
+            self.hass.async_create_task(self._async_refresh_value())
+
+    async def _async_refresh_value(self) -> None:
+        data = self._meter_data or {}
+        unit_rate = data.get("unit_rate")
+        if unit_rate is None or self.hass is None:
+            self._value = None
+            self.async_write_ha_state()
+            return
+        total = await _month_to_date_consumption_from_statistics(
+            self.hass,
+            self._data_key,
+            self._meter_type,
+        )
+        if total is None:
+            self._value = None
+        else:
+            try:
+                self._value = round(float(total) * float(unit_rate), 4)
+            except (TypeError, ValueError):
+                self._value = None
+        self.async_write_ha_state()
+
+    @property
+    def native_value(self):
+        return self._value
+
+    @property
+    def extra_state_attributes(self):
+        return {"rate_assumption": "current_unit_rate"}
 
 
 class CostTrackerSensor(RestoreEntity, SensorEntity):

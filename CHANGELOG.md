@@ -27,8 +27,13 @@ This project is a fork of [madmachinations/eon-next-fork-v2](https://github.com/
 * **sensor:** add previous and next unit rate sensors for tariff-aware automations (Phase 2A)
 * **binary_sensor:** add off-peak binary sensor for time-of-use tariff automation triggers
 * **event:** add current day rates event entity with today's full rate schedule
+* **sensor:** add current rate type, next rate change, lowest/highest rate today, and off-peak windows today tariff sensors
+* **sensor:** add next off-peak start/end and off-peak minutes remaining sensors
 * **sensor:** add export unit rate and export daily consumption sensors for solar/export meters
+* **sensor:** add export earnings today, yesterday, and month-to-date sensors
 * **sensor:** add previous day consumption and account balance sensors (Phase 2B)
+* **sensor:** add EV smart charging slot count and next-slot energy-added sensors
+* **sensor:** add EV planned energy today, planned minutes today, and net import cost today summary sensor
 * **sensor/services:** add cost tracker entities with persistent storage and management services (`add_cost_tracker`, `reset_cost_tracker`, `update_cost_tracker`)
 * **frontend:** extend cost breakdown with default cost-tracker visualization (tracked vs untracked usage today + per-tracker list)
 * add tariff rate calculation helpers with API schedule and pattern registry fallback
