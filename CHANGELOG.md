@@ -8,6 +8,7 @@ This project is a fork of [madmachinations/eon-next-fork-v2](https://github.com/
 
 - Publish the deployed side-by-side fork and expanded Kraken-derived sensors.
 - Correct documentation and issue links to this fork.
+- Restore the upstream MIT licence and E.ON icon for HACS validation.
 - Align the manifest, integration version and release metadata checker with the fork domain.
 
 ## [1.9.0](https://github.com/monsagri/eon-next-fork-v2/compare/v1.8.2...v1.9.0) (2026-03-02)
