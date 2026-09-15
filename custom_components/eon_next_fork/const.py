@@ -1,7 +1,7 @@
 """Constants for the EON Next Fork integration."""
 
 DOMAIN = "eon_next_fork"
-INTEGRATION_VERSION = "1.11.0"  # x-release-please-version
+INTEGRATION_VERSION = "1.12.0"  # x-release-please-version
 
 # Authentication
 CONF_EMAIL = "email"
