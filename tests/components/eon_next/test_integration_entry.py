@@ -151,7 +151,7 @@ async def _ensure_recorder(hass: HomeAssistant) -> None:
             {"recorder": {"db_url": "sqlite://", "commit_interval": 0}},
         )
     await hass.async_block_till_done()
-    assert await recorder_helper.async_wait_recorder(hass)
+    assert await recorder_helper.get_instance(hass).async_db_ready
 
 
 def _status_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:

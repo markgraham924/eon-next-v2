@@ -40,7 +40,7 @@ async def _ensure_recorder(hass) -> None:
             {"recorder": {"db_url": "sqlite://", "commit_interval": 0}},
         )
     await hass.async_block_till_done()
-    assert await recorder_helper.async_wait_recorder(hass)
+    assert await recorder_helper.get_instance(hass).async_db_ready
 
 
 @pytest.mark.asyncio
