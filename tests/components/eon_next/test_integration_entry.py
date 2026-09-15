@@ -214,12 +214,12 @@ async def test_setup_uses_refresh_token_and_creates_status_sensor(
 
 
 @pytest.mark.asyncio
-async def test_setup_groups_entities_under_one_device(
+async def test_setup_groups_entities_under_meter_and_diagnostics_devices(
     hass: HomeAssistant,
     enable_custom_integrations: None,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """All entities should be attached to the shared config-entry device."""
+    """Deployed meter and diagnostics groups must retain distinct stable devices."""
     del enable_custom_integrations
     fake_api = FakeApi(refresh_login_result=True)
     _patch_integration(monkeypatch, fake_api)
@@ -229,7 +229,12 @@ async def test_setup_groups_entities_under_one_device(
 
     entity_registry = er.async_get(hass)
     device_registry = dr.async_get(hass)
-    device_entry = device_registry.async_get_device(identifiers={(DOMAIN, entry.entry_id)})
+    meter_device = device_registry.async_get_device(
+        identifiers={(DOMAIN, f"{entry.entry_id}::meter::mpxn-1::electric-meter-1")}
+    )
+    diagnostics_device = device_registry.async_get_device(
+        identifiers={(DOMAIN, f"{entry.entry_id}::diagnostics")}
+    )
     entity_device_ids = {
         registry_entry.device_id
         for registry_entry in er.async_entries_for_config_entry(
@@ -237,8 +242,9 @@ async def test_setup_groups_entities_under_one_device(
         )
     }
 
-    assert device_entry is not None
-    assert entity_device_ids == {device_entry.id}
+    assert meter_device is not None
+    assert diagnostics_device is not None
+    assert entity_device_ids == {meter_device.id, diagnostics_device.id}
 
 
 @pytest.mark.asyncio

@@ -36,7 +36,8 @@ def pytest_runtest_setup() -> None:
     pytest_socket.enable_socket()
 
 
-@pytest.fixture
-def event_loop_policy(socket_enabled: None):
-    """Ensure sockets are enabled before pytest-asyncio creates an event loop."""
-    return asyncio.get_event_loop_policy()
+if sys.platform == "win32":
+    @pytest.fixture
+    def event_loop_policy(socket_enabled: None):
+        """Enable Windows socketpair setup without overriding Linux session fixtures."""
+        return asyncio.get_event_loop_policy()
