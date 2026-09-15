@@ -16,10 +16,10 @@ from homeassistant.components import websocket_api
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN, INTEGRATION_VERSION
-from .eonnext import EonNextAuthError
-from .models import EonNextConfigEntry
-from .schemas import (
+from ..const import DOMAIN, INTEGRATION_VERSION
+from ..eonnext import EonNextAuthError
+from ..models import EonNextConfigEntry
+from ..schemas import (
     BackfillMeterProgress,
     BackfillStatusResponse,
     ConsumptionHistoryEntry,
@@ -31,7 +31,7 @@ from .schemas import (
     MeterSummary,
     VersionResponse,
 )
-from .statistics import statistic_id_for_meter
+from ..statistics import statistic_id_for_meter
 
 _LOGGER = logging.getLogger(__name__)
 
