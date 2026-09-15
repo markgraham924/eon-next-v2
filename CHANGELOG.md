@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 This project is a fork of [madmachinations/eon-next-fork-v2](https://github.com/madmachinations/eon-next-fork-v2), maintained by [@monsagri](https://github.com/monsagri).
 
+## [1.11.0](https://github.com/markgraham924/eon-next-v2/releases/tag/v1.11.0) (2026-09-15)
+
+- Publish the deployed side-by-side fork and expanded Kraken-derived sensors.
+- Correct documentation and issue links to this fork.
+- Restore the upstream MIT licence and E.ON icon for HACS validation.
+- Correct parent-package imports in the frontend compatibility module.
+- Align the manifest, integration version and release metadata checker with the fork domain.
+
 ## [1.9.0](https://github.com/monsagri/eon-next-fork-v2/compare/v1.8.2...v1.9.0) (2026-03-02)
 
 
@@ -27,8 +35,13 @@ This project is a fork of [madmachinations/eon-next-fork-v2](https://github.com/
 * **sensor:** add previous and next unit rate sensors for tariff-aware automations (Phase 2A)
 * **binary_sensor:** add off-peak binary sensor for time-of-use tariff automation triggers
 * **event:** add current day rates event entity with today's full rate schedule
+* **sensor:** add current rate type, next rate change, lowest/highest rate today, and off-peak windows today tariff sensors
+* **sensor:** add next off-peak start/end and off-peak minutes remaining sensors
 * **sensor:** add export unit rate and export daily consumption sensors for solar/export meters
+* **sensor:** add export earnings today, yesterday, and month-to-date sensors
 * **sensor:** add previous day consumption and account balance sensors (Phase 2B)
+* **sensor:** add EV smart charging slot count and next-slot energy-added sensors
+* **sensor:** add EV planned energy today, planned minutes today, and net import cost today summary sensor
 * **sensor/services:** add cost tracker entities with persistent storage and management services (`add_cost_tracker`, `reset_cost_tracker`, `update_cost_tracker`)
 * **frontend:** extend cost breakdown with default cost-tracker visualization (tracked vs untracked usage today + per-tracker list)
 * add tariff rate calculation helpers with API schedule and pattern registry fallback

@@ -10,15 +10,89 @@ from .models import EonNextConfigEntry
 
 
 def get_entry_device_info(config_entry: EonNextConfigEntry) -> DeviceInfo:
-    """Build the shared Home Assistant device for a config entry."""
+    """Build the top-level Home Assistant service device for a config entry."""
     return DeviceInfo(
         identifiers={(DOMAIN, config_entry.entry_id)},
         entry_type=DeviceEntryType.SERVICE,
         manufacturer="E.ON Next",
-        model="Energy Account",
+        model="Energy Service",
         name=config_entry.title or "E.ON Next",
         sw_version=INTEGRATION_VERSION,
         configuration_url="https://www.eonnext.com/",
+    )
+
+
+def get_account_device_info(
+    config_entry: EonNextConfigEntry,
+    account_number: str,
+) -> DeviceInfo:
+    """Build a dedicated Home Assistant device for one account."""
+    return DeviceInfo(
+        identifiers={(DOMAIN, f"{config_entry.entry_id}::account::{account_number}")},
+        manufacturer="E.ON Next",
+        model="Energy Account",
+        name=account_label(account_number),
+        sw_version=INTEGRATION_VERSION,
+        configuration_url="https://www.eonnext.com/",
+        via_device=(DOMAIN, config_entry.entry_id),
+    )
+
+
+def get_meter_device_info(
+    config_entry: EonNextConfigEntry,
+    meter,
+) -> DeviceInfo:
+    """Build a dedicated Home Assistant device for one meter."""
+    supply_point_id = str(getattr(meter, "supply_point_id", "") or "")
+    serial = str(getattr(meter, "serial", "") or "")
+    identifiers = {
+        (
+            DOMAIN,
+            f"{config_entry.entry_id}::meter::{supply_point_id or serial}::{serial}",
+        )
+    }
+    return DeviceInfo(
+        identifiers=identifiers,
+        manufacturer="E.ON Next",
+        model="Export Meter"
+        if getattr(meter, "is_export", False)
+        else ("Electricity Meter" if getattr(meter, "type", None) == METER_TYPE_ELECTRIC else "Gas Meter"),
+        name=meter_label(meter),
+        serial_number=serial or None,
+        sw_version=INTEGRATION_VERSION,
+        configuration_url="https://www.eonnext.com/",
+        via_device=(DOMAIN, config_entry.entry_id),
+    )
+
+
+def get_charger_device_info(
+    config_entry: EonNextConfigEntry,
+    charger,
+) -> DeviceInfo:
+    """Build a dedicated Home Assistant device for one EV charger/device."""
+    device_id = str(getattr(charger, "device_id", "") or "")
+    return DeviceInfo(
+        identifiers={(DOMAIN, f"{config_entry.entry_id}::charger::{device_id}")},
+        manufacturer="E.ON Next",
+        model="Smart Charging Device",
+        name=charger_label(charger),
+        serial_number=device_id or None,
+        sw_version=INTEGRATION_VERSION,
+        configuration_url="https://www.eonnext.com/",
+        via_device=(DOMAIN, config_entry.entry_id),
+    )
+
+
+def get_diagnostics_device_info(config_entry: EonNextConfigEntry) -> DeviceInfo:
+    """Build a dedicated device for integration-level diagnostics."""
+    return DeviceInfo(
+        identifiers={(DOMAIN, f"{config_entry.entry_id}::diagnostics")},
+        manufacturer="E.ON Next",
+        model="Integration Diagnostics",
+        name="Diagnostics",
+        sw_version=INTEGRATION_VERSION,
+        configuration_url="https://www.eonnext.com/",
+        via_device=(DOMAIN, config_entry.entry_id),
     )
 
 

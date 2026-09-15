@@ -2,6 +2,8 @@
 
 Custom integration for E.ON Next accounts in Home Assistant.
 
+This fork uses the `eon_next_fork` domain and releases from [markgraham924/eon-next-v2](https://github.com/markgraham924/eon-next-v2/releases). Version 1.11.0 captures the deployed Kraken sensor expansion; entity identifiers and account configuration remain unchanged. The frontend compatibility module now resolves its parent-package imports correctly.
+
 ## What This Integration Provides
 
 - Latest electricity and gas meter readings.
@@ -15,11 +17,18 @@ Custom integration for E.ON Next accounts in Home Assistant.
 - Previous day consumption sensor (kWh) with data quality attributes (`entry_count`, `data_complete`).
 - Current unit rate sensor (£/kWh, inc VAT) for electricity and gas — compatible with the Energy Dashboard's "use an entity with current price" option.
 - Current tariff name sensor with agreement metadata (code, type, validity period) and published unit rate.
+- Current rate type sensor (`standard`, `off_peak`, or `peak`) for simpler tariff-state automations.
+- Next rate change timestamp sensor for time-of-use tariffs.
+- Lowest and highest rate today sensors (£/kWh) derived from today's published tariff schedule.
+- Off-peak windows today sensor for time-of-use tariffs.
+- Next off-peak start/end timestamp sensors plus an off-peak minutes remaining diagnostic sensor.
 - Account balance sensor per account (£), refreshed on coordinator updates.
+- Net import cost today summary sensor (import cost minus export credit across discovered meters/accounts).
 - Previous and next unit rate sensors — show the last/upcoming rate that differs from the current rate, enabling tariff-aware automations (e.g., "run the dishwasher when the cheap rate starts").
 - Off-peak binary sensor — `on` during off-peak rate windows for time-of-use tariffs, `unavailable` for flat-rate tariffs. Supports automations with a simple `state: 'on'` trigger.
 - Current day rates event entity — fires `rates_updated` each coordinator refresh with today's full rate schedule (start, end, rate, is_off_peak per window). Also exposes `rates` as a persistent state attribute for template sensors.
 - Export unit rate and export daily consumption sensors — created automatically for detected export meters (solar/battery export).
+- Export earnings today, export earnings yesterday, and export earnings month-to-date sensors for detected export meters.
 - Cost tracker sensors with persistent storage and services:
   - `eon_next.add_cost_tracker` to create a tracker for a selected power/energy entity and meter tariff.
   - `eon_next.reset_cost_tracker` to zero one or more trackers.
@@ -27,6 +36,10 @@ Custom integration for E.ON Next accounts in Home Assistant.
   - Cost breakdown UI now includes a default tracker-powered "tracked vs untracked usage (today)" visualization and per-tracker cost list when trackers exist for the selected meter.
 - EV smart charging sensors (when SmartFlex devices are available):
   - Smart charging schedule status.
+  - Smart charging slot count.
+  - Next charge planned energy added (kWh), when provided by Kraken.
+  - Planned smart charging energy today.
+  - Planned smart charging minutes today.
   - Next charge start/end.
   - Second charge start/end.
 - Home Assistant re-auth support for password changes.

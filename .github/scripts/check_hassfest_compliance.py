@@ -13,8 +13,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-MANIFEST_PATH = ROOT / "custom_components" / "eon_next" / "manifest.json"
-INIT_PATH = ROOT / "custom_components" / "eon_next" / "__init__.py"
+MANIFEST_PATH = ROOT / "custom_components" / "eon_next_fork" / "manifest.json"
+INIT_PATH = ROOT / "custom_components" / "eon_next_fork" / "__init__.py"
 
 errors: list[str] = []
 

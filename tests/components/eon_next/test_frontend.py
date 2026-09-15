@@ -539,7 +539,7 @@ class TestWsConsumptionHistory:
         fake_api._consumption_result = {
             "results": [
                 {
-                    "interval_start": "2026-04-05T00:30:00+14:00",
+                    "interval_start": f"{_TODAY.isoformat()}T00:30:00+14:00",
                     "consumption": 2.25,
                 }
             ]
@@ -578,7 +578,7 @@ class TestWsConsumptionHistory:
 
         result = mock_connection.send_result.call_args[0][1]
         rest_entry = next(e for e in result["entries"] if e["consumption"] == 2.25)
-        assert rest_entry["date"] == "2026-04-04"
+        assert rest_entry["date"] == _YESTERDAY_ISO
 
     @pytest.mark.asyncio
     async def test_returns_entries_from_recorder_statistics(

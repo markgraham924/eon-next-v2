@@ -75,6 +75,7 @@ class EonNextCoordinator(DataUpdateCoordinator):
                         "serial": meter.serial,
                         "meter_id": meter.meter_id,
                         "supply_point_id": meter.supply_point_id,
+                        "is_export": getattr(meter, "is_export", False),
                         "latest_reading": meter.latest_reading,
                         "latest_reading_date": meter.latest_reading_date,
                         # Defaults for cost/tariff fields — overwritten below
