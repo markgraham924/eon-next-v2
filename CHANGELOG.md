@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project is a fork of [madmachinations/eon-next-fork-v2](https://github.com/madmachinations/eon-next-fork-v2), maintained by [@monsagri](https://github.com/monsagri).
 
+## [1.11.0](https://github.com/markgraham924/eon-next-v2/releases/tag/v1.11.0) (2026-09-15)
+
+- Publish the deployed side-by-side fork and expanded Kraken-derived sensors.
+- Correct documentation and issue links to this fork.
+- Align the manifest, integration version and release metadata checker with the fork domain.
+
 ## [1.9.0](https://github.com/monsagri/eon-next-fork-v2/compare/v1.8.2...v1.9.0) (2026-03-02)
 
 

@@ -2,6 +2,8 @@
 
 Custom integration for E.ON Next accounts in Home Assistant.
 
+This fork uses the `eon_next_fork` domain and releases from [markgraham924/eon-next-v2](https://github.com/markgraham924/eon-next-v2/releases). Version 1.11.0 captures the deployed Kraken sensor expansion; entity identifiers and account configuration remain unchanged.
+
 ## What This Integration Provides
 
 - Latest electricity and gas meter readings.

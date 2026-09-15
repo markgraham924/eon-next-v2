@@ -7,8 +7,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-MANIFEST_PATH = ROOT / "custom_components" / "eon_next" / "manifest.json"
-CONST_PATH = ROOT / "custom_components" / "eon_next" / "const.py"
+MANIFEST_PATH = ROOT / "custom_components" / "eon_next_fork" / "manifest.json"
+CONST_PATH = ROOT / "custom_components" / "eon_next_fork" / "const.py"
 CHANGELOG_PATH = ROOT / "CHANGELOG.md"
 RELEASE_PLEASE_MANIFEST_PATH = ROOT / ".release-please-manifest.json"
 
